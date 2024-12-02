@@ -634,6 +634,5 @@ output = ad.AnnData(
     'dataset_id': input_test.uns['dataset_id'],
     'normalization_id': input_test.uns['normalization_id']
   }
-
 )
 output.write_h5ad(par['output'], compression='gzip')

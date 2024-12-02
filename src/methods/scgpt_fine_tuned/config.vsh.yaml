@@ -1,7 +1,7 @@
 __merge__: ../../api/comp_method.yaml
 
-name: scgpt
-label: scGPT
+name: scgpt_fine_tune
+label: scGPT fine tuned
 summary: "Cell-type annotation by fine-tuning on a pre-trained scGPT model."
 description: |
   scGPT is a foundation model for single-cell biology based on a generative pre-trained transformer and trained on a repository of over 33 million cells. Here, we fine-tune a pre-trained model on a reference dataset using the hyper-parameter recommenations for the cell-type task and then infer cell-types for the unlabelled cells in a query dataset.
