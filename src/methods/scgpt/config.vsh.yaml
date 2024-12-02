@@ -1,0 +1,45 @@
+__merge__: ../../api/comp_method.yaml
+
+name: scgpt
+label: scGPT
+summary: "Cell-type annotation by fine-tuning on a pre-trained scGPT model."
+description: |
+  scGPT is a foundation model for single-cell biology based on a generative pre-trained transformer and trained on a repository of over 33 million cells. Here, we fine-tune a pre-trained model on a reference dataset using the hyper-parameter recommenations for the cell-type task and then infer cell-types for the unlabelled cells in a query dataset.
+
+references: 
+  doi: 10.1038/s41592-024-02201-0
+
+links: 
+  documentation: https://scgpt.readthedocs.io/en/latest/
+  repository: https://github.com/bowang-lab/scGPT
+
+info:
+  preferred_normalization: log_cp10k
+
+# arguments:
+#   - name: "--n_neighbors"
+#     type: "integer"
+#     default: 5
+#     description: Number of neighbors to use.
+
+resources:
+  - type: python_script
+    path: script.py
+
+engines:
+  - type: docker
+    image: openproblems/base_pytorch_nvidia:1.0.0
+    setup:
+      - type: python
+        pypi:
+          - gdown
+          - scgpt # Install from PyPI to get dependencies
+      - type: docker
+        # Force re-installing from GitHub to get bug fixes
+        run: pip install --upgrade --no-deps --force-reinstall git+https://github.com/bowang-lab/scGPT.git
+
+runners:
+  - type: executable
+  - type: nextflow
+    directives:
+      label: [midtime, midmem, midcpu, gpu]
