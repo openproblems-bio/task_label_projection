@@ -1,11 +1,13 @@
 import os
-import sys
 import tempfile
 import zipfile
 import tarfile
 
 import anndata as ad
 import scimilarity
+import numpy as np
+from scipy.spatial import distance
+from scipy.optimize import linear_sum_assignment
 
 ## VIASH START
 par = {
@@ -106,6 +108,57 @@ predictions, nn_idxs, nn_dists, nn_stats = cell_annotator.get_predictions_knn(
 )
 train.obs["prediction"] = predictions.values
 print(train.obs["prediction"].value_counts(), flush=True)
+
+print("\n>>> Matching predictions to labels...", flush=True)
+labels = input_train.obs["label"].astype("category")
+label_values = list(labels)
+label_levels = sorted(list(labels.cat.categories))
+
+predicted = train.obs["prediction"].astype("category")
+predicted_values = list(predicted)
+predicted_levels = sorted(list(predicted.cat.categories))
+
+matches = {}
+lower_label_levels = [l.lower() for l in label_levels]
+print("---- EXACT MATCHES ----", flush=True)
+for pred in predicted_levels:
+    if pred.lower() in lower_label_levels:
+        matches[pred] = label_levels[lower_label_levels.index(pred.lower())]
+        print(pred, flush=True)
+
+predicted_levels = [pred for pred in predicted_levels if pred not in matches.keys()]
+
+jaccard = np.zeros((len(label_levels), len(predicted_levels)))
+combos = [(label, pred) for label in label_levels for pred in predicted_levels]
+
+print("\n---- INFERRED MATCHES ----", flush=True)
+print(f"{'PREDICTED' : <40}{'LABEL' : <40}", flush=True)
+
+for label, pred in combos:
+    labels_bin = [1 if l == label else 0 for l in label_values]
+    predicted_bin = [1 if p == pred else 0 for p in predicted_values]
+
+    label_idx = label_levels.index(label)
+    predicted_idx = predicted_levels.index(pred)
+    jaccard[label_idx, predicted_idx] = distance.jaccard(labels_bin, predicted_bin)
+
+while not all(pred in matches for pred in predicted_levels):
+    not_matched = [pred for pred in predicted_levels if pred not in matches.keys()]
+    not_matched_idx = [predicted_levels.index(pred) for pred in not_matched]
+    assignments = linear_sum_assignment(jaccard[:, not_matched_idx])
+
+    for label, pred in zip(assignments[0], assignments[1]):
+        predicted_level = not_matched[pred]
+        label_level = label_levels[label]
+        matches[predicted_level] = label_level
+
+        if (len(predicted_level) > 39):
+            predicted_level = predicted_level[:36] + '...'
+
+        if (len(label_level) > 39):
+            label_level = label_level[:36] + '...'
+
+        print(f"{predicted_level: <40}{label_level : <40}", flush=True)
 
 # print("Store outputs", flush=True)
 # output = ad.AnnData(
