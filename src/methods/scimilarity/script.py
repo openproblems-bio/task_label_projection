@@ -97,8 +97,8 @@ train = scimilarity.utils.consolidate_duplicate_symbols(train)
 print("Normalizing...", flush=True)
 train = scimilarity.utils.lognorm_counts(train)
 
-# print("\n>>> Embedding training data..", flush=True)
-# train.obsm["X_scimilarity"] = cell_annotator.get_embeddings(train.X)
+print("\n>>> Embedding training data...", flush=True)
+train.obsm["X_scimilarity"] = cell_annotator.get_embeddings(train.X)
 
 # print("Store outputs", flush=True)
 # output = ad.AnnData(
