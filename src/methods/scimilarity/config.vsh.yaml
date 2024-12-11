@@ -6,7 +6,12 @@ summary: SCimilarity provides unifying representation of single cell expression 
 description: |
   SCimilarity is a unifying representation of single cell expression profiles
   that quantifies similarity between expression states and generalizes to
-  represent new studies without additional training
+  represent new studies without additional training.
+
+  This method uses the SCimilarity cell annotation module. As labels in the
+  SCimilarity model are likely to be different to those in the dataset we use
+  a combination of exact string matching and iterative linear sum assignment to
+  match generate a mapping between them using the training data.
 references:
   doi: 10.1101/2023.07.18.549537
 links:

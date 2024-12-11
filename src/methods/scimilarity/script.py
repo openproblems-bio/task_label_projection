@@ -110,14 +110,21 @@ train.obs["prediction"] = predictions.values
 print(train.obs["prediction"].value_counts(), flush=True)
 
 print("\n>>> Matching predictions to labels...", flush=True)
+# The labels in the SCimilarity model will be different to those in the dataset
+# This step creates a mapping from the SCimilarity labels to the dataset labels
+
+# Get levels and values for real labels
 labels = input_train.obs["label"].astype("category")
 label_values = list(labels)
 label_levels = sorted(list(labels.cat.categories))
 
+# Get levels and values for predicted labels
 predicted = train.obs["prediction"].astype("category")
 predicted_values = list(predicted)
 predicted_levels = sorted(list(predicted.cat.categories))
 
+# If there are any predicted labels that exactly match a dataset label we use
+# them directly
 matches = {}
 lower_label_levels = [l.lower() for l in label_levels]
 print("---- EXACT MATCHES ----", flush=True)
@@ -126,13 +133,12 @@ for pred in predicted_levels:
         matches[pred] = label_levels[lower_label_levels.index(pred.lower())]
         print(pred, flush=True)
 
+# Remove any predicted labels that have exact matches
 predicted_levels = [pred for pred in predicted_levels if pred not in matches.keys()]
 
+# Calculate Jaccard distance between each pair of predicted and dataset labels
 jaccard = np.zeros((len(label_levels), len(predicted_levels)))
 combos = [(label, pred) for label in label_levels for pred in predicted_levels]
-
-print("\n---- INFERRED MATCHES ----", flush=True)
-print(f"{'PREDICTED' : <40}{'LABEL' : <40}", flush=True)
 
 for label, pred in combos:
     labels_bin = [1 if l == label else 0 for l in label_values]
@@ -142,11 +148,21 @@ for label, pred in combos:
     predicted_idx = predicted_levels.index(pred)
     jaccard[label_idx, predicted_idx] = distance.jaccard(labels_bin, predicted_bin)
 
+# Use linear sum assignment to match predicted labels to dataset labels based on
+# the Jaccard distances. This algorithm may not match all predicted labels so
+# we remove any that have been matched and repeat until all predicted labels are
+# matched to a dataset label.
+print("\n---- INFERRED MATCHES ----", flush=True)
+print(f"{'PREDICTED' : <40}{'LABEL' : <40}", flush=True)
 while not all(pred in matches for pred in predicted_levels):
+    # Get predicted labels that have not yet been matched
     not_matched = [pred for pred in predicted_levels if pred not in matches.keys()]
     not_matched_idx = [predicted_levels.index(pred) for pred in not_matched]
+
+    # Get assignments for currently unmatched predicted labels
     assignments = linear_sum_assignment(jaccard[:, not_matched_idx])
 
+    # Store any new matches
     for label, pred in zip(assignments[0], assignments[1]):
         predicted_level = not_matched[pred]
         label_level = label_levels[label]
