@@ -37,30 +37,36 @@ print(f"Test H5AD file: '{par['input_test']}'", flush=True)
 input_test = ad.read_h5ad(par['input_test'])
 print(input_test, flush=True)
 
-# if os.path.isdir(par["model"]):
-#     model_temp = None
-#     model_dir = par["model"]
-# else:
-#     model_temp = tempfile.TemporaryDirectory()
-#     model_dir = model_temp.name
+if os.path.isdir(par["model"]):
+    print(f"\n>>> Using existing model directory...", flush=True)
+    model_temp = None
+    model_dir = par["model"]
+else:
+    model_temp = tempfile.TemporaryDirectory()
+    model_dir = model_temp.name
 
-#     if zipfile.is_zipfile(par["model"]):
-#         print("Extract SCimilarity model from .zip", flush=True)
-#         with zipfile.ZipFile(par["model"], "r") as zip_file:
-#             zip_file.extractall(model_dir)
-#     elif tarfile.is_tarfile(par["model"]) and par["model"].endswith(".tar.gz"):
-#         print("Extract SCimilarity model from .tar.gz", flush=True)
-#         with tarfile.open(par["model"], "r:gz") as tar_file:
-#             tar_file.extractall(model_dir)
-#             model_dir = os.path.join(model_dir, os.listdir(model_dir)[0])
-#     else:
-#         raise ValueError(
-#             f"The 'model' argument should be a directory a .zip file or a .tar.gz file"
-#         )
+    if zipfile.is_zipfile(par["model"]):
+        print(f"\n>>> Extracting model directory from .zip...", flush=True)
+        print(f".zip path: '{par['model']}'", flush=True)
+        with zipfile.ZipFile(par["model"], "r") as zip_file:
+            zip_file.extractall(model_dir)
+    elif tarfile.is_tarfile(par["model"]) and par["model"].endswith(
+        ".tar.gz"
+    ):
+        print(f"\n>>> Extracting model directory from .tar.gz...", flush=True)
+        print(f".tar.gz path: '{par['model']}'", flush=True)
+        with tarfile.open(par["model"], "r:gz") as tar_file:
+            tar_file.extractall(model_dir)
+            model_dir = os.path.join(model_dir, os.listdir(model_dir)[0])
+    else:
+        raise ValueError(
+            f"The 'model' argument should be a directory a .zip file or a .tar.gz file"
+        )
 
-# print("Load SCimilarity model", flush=True)
-# scimilarity_embedding = scimilarity.cell_embedding.CellEmbedding(model_path=model_dir)
-# print("SCimilarity version:", scimilarity.__version__)
+print(f"Model directory: '{model_dir}'", flush=True)
+
+print("\n>>> Loading SCimilarity model...", flush=True)
+cell_annotator = scimilarity.CellAnnotation(model_path=model_dir)
 
 # print("Create input data", flush=True)
 # # Some of the functions modify the adata so make sure we have a copy
@@ -117,3 +123,5 @@ print(input_test, flush=True)
 # if model_temp is not None:
 #     print("Cleanup model directory", flush=True)
 #     model_temp.cleanup()
+
+print("\n>>> Done!", flush=True)
