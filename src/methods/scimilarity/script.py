@@ -68,39 +68,37 @@ print(f"Model directory: '{model_dir}'", flush=True)
 print("\n>>> Loading SCimilarity model...", flush=True)
 cell_annotator = scimilarity.CellAnnotation(model_path=model_dir)
 
-# print("Create input data", flush=True)
-# # Some of the functions modify the adata so make sure we have a copy
-# input = ad.AnnData(X=adata.X.copy(), layers={"counts": adata.X.copy()})
-# # Set input.var_names to gene symbols
-# input.var_names = adata.var["feature_name"]
+print("\n>>> Preprocessing training data...", flush=True)
+print("Creating input object...", flush=True)
+# Some of the functions modify the adata so make sure we have a copy
+train = ad.AnnData(X=input_train.layers["counts"], layers={"counts":input_train.layers["counts"]})
+# Set var_names to gene symbols
+train.var_names = input_train.var["feature_name"]
+print("Aligning genes...", flush=True)
+# Check the number of genes in the dataset and reduce the overlap threshold if
+# necessary (mostly for subsampled test datasets)
+gene_overlap_threshold = 5000
+if 0.8 * train.n_vars < gene_overlap_threshold:
+    from warnings import warn
 
-# print("Align datasets", flush=True)
+    warn(
+        f"The number of genes in the dataset ({train.n_vars}) "
+        f"is less than or close to {gene_overlap_threshold}. "
+        f"Setting gene_overlap_threshold to 0.8 * n_var ({int(0.8 * train.n_vars)})."
+    )
+    gene_overlap_threshold = int(0.8 * train.n_vars)
 
-# # Check the number of genes in the dataset and reduce the overlap threshold if
-# # necessary (mostly for subsampled test datasets)
-# gene_overlap_threshold = 5000
-# if 0.8 * input.n_vars < gene_overlap_threshold:
-#     from warnings import warn
+train = scimilarity.utils.align_dataset(
+    train,
+    cell_annotator.gene_order,
+    gene_overlap_threshold=gene_overlap_threshold,
+)
+train = scimilarity.utils.consolidate_duplicate_symbols(train)
+print("Normalizing...", flush=True)
+train = scimilarity.utils.lognorm_counts(train)
 
-#     warn(
-#         f"The number of genes in the dataset ({input.n_vars}) "
-#         f"is less than or close to {gene_overlap_threshold}. "
-#         f"Setting gene_overlap_threshold to 0.8 * n_var ({int(0.8 * input.n_vars)})."
-#     )
-#     gene_overlap_threshold = int(0.8 * input.n_vars)
-
-# input = scimilarity.utils.align_dataset(
-#     input,
-#     scimilarity_embedding.gene_order,
-#     gene_overlap_threshold=gene_overlap_threshold,
-# )
-# input = scimilarity.utils.consolidate_duplicate_symbols(input)
-
-# print("Normalizing dataset", flush=True)
-# input = scimilarity.utils.lognorm_counts(input)
-
-# print("Get cell embeddings", flush=True)
-# cell_embeddings = scimilarity_embedding.get_embeddings(input.X)
+# print("\n>>> Embedding training data..", flush=True)
+# train.obsm["X_scimilarity"] = cell_annotator.get_embeddings(train.X)
 
 # print("Store outputs", flush=True)
 # output = ad.AnnData(
