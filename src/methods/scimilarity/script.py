@@ -158,28 +158,53 @@ while not all(pred in matches for pred in predicted_levels):
         if (len(label_level) > 39):
             label_level = label_level[:36] + '...'
 
-        print(f"{predicted_level: <40}{label_level : <40}", flush=True)
+        print(f"{predicted_level: <40}{label_level: <40}", flush=True)
 
-# print("Store outputs", flush=True)
-# output = ad.AnnData(
-#     obs=adata.obs[[]],
-#     var=adata.var[[]],
-#     obsm={
-#         "X_emb": cell_embeddings,
-#     },
-#     uns={
-#         "dataset_id": adata.uns["dataset_id"],
-#         "normalization_id": adata.uns["normalization_id"],
-#         "method_id": meta["name"],
-#     },
-# )
-# print(output)
+print("\n>>> Preprocessing test data...", flush=True)
+print("Creating input object...", flush=True)
+test = ad.AnnData(X=input_test.layers["counts"], layers={"counts":input_test.layers["counts"]})
+test.var_names = input_test.var["feature_name"]
+print("Aligning genes...", flush=True)
+test = scimilarity.utils.align_dataset(
+    test,
+    cell_annotator.gene_order,
+    gene_overlap_threshold=gene_overlap_threshold,
+)
+test = scimilarity.utils.consolidate_duplicate_symbols(test)
+print("Normalizing...", flush=True)
+test = scimilarity.utils.lognorm_counts(test)
 
-# print("Write output to file", flush=True)
-# output.write_h5ad(par["output"], compression="gzip")
+print("\n>>> Embedding test data...", flush=True)
+test.obsm["X_scimilarity"] = cell_annotator.get_embeddings(test.X)
 
-# if model_temp is not None:
-#     print("Cleanup model directory", flush=True)
-#     model_temp.cleanup()
+print("\n>>> Annotating test data...", flush=True)
+predictions, nn_idxs, nn_dists, nn_stats = cell_annotator.get_predictions_knn(
+    test.obsm["X_scimilarity"]
+)
+test.obs["prediction"] = predictions.values
+print(test.obs["prediction"].value_counts(), flush=True)
+
+print("\n>>> Converting predictions to labels...", flush=True)
+test.obs["label_pred"] = test.obs["prediction"].map(matches)
+print(test.obs["label_pred"].value_counts(), flush=True)
+
+print("\n>>> Storing output...", flush=True)
+output = ad.AnnData(
+    obs=test.obs[["label_pred"]],
+    uns={
+        'method_id': meta['name'],
+        'dataset_id': input_test.uns['dataset_id'],
+        'normalization_id': input_test.uns['normalization_id']
+    }
+)
+print(output, flush=True)
+
+print("\n>>> Writing output to file...", flush=True)
+print(f"Output H5AD file: '{par['output']}'", flush=True)
+output.write_h5ad(par["output"], compression="gzip")
+
+if model_temp is not None:
+    print("\n>>> Cleaning up temporary directories...", flush=True)
+    model_temp.cleanup()
 
 print("\n>>> Done!", flush=True)
