@@ -100,6 +100,13 @@ train = scimilarity.utils.lognorm_counts(train)
 print("\n>>> Embedding training data...", flush=True)
 train.obsm["X_scimilarity"] = cell_annotator.get_embeddings(train.X)
 
+print("\n>>> Annotating training data...", flush=True)
+predictions, nn_idxs, nn_dists, nn_stats = cell_annotator.get_predictions_knn(
+    train.obsm["X_scimilarity"]
+)
+train.obs["prediction"] = predictions.values
+print(train.obs["prediction"].value_counts(), flush=True)
+
 # print("Store outputs", flush=True)
 # output = ad.AnnData(
 #     obs=adata.obs[[]],
