@@ -1,6 +1,6 @@
 __merge__: ../../api/base_method.yaml
 
-name: scgpt_fine_tune
+name: scgpt_fine_tuned
 label: scGPT fine tuned
 summary: "Cell-type annotation by fine-tuning on a pre-trained scGPT model."
 description: |
