@@ -14,6 +14,7 @@ import torch
 import sklearn
 from torchtext.vocab import Vocab
 import scgpt
+from sklearn.model_selection import train_test_split
 
 
 ## VIASH START
@@ -110,8 +111,8 @@ hyperparameters = dict(
 )
 
 # settings for input and preprocessing
-pad_token = "<pad>",
-special_tokens = ["<pad>", "<cls>", "<eoc>"],
+pad_token = "<pad>"
+special_tokens = ["<pad>", "<cls>", "<eoc>"]
 mask_value = -1
 pad_value = -2
 max_seq_len = 3001
@@ -158,13 +159,14 @@ num_types = len(input_train.obs["celltype"].unique())
 id2type = dict(enumerate(input_train.obs["celltype"].astype("category").cat.categories))
 input_train.obs["celltype_id"] = input_train.obs["celltype"].astype("category").cat.codes.values
 
+from pathlib import Path
 model_config_file = model_dir / "args.json"
 model_file = model_dir / "best_model.pt"
 vocab_file = model_dir / "vocab.json"
 vocab = scgpt.tokenizer.gene_tokenizer.GeneVocab.from_file(vocab_file)
-for s in special_tokens:
-  if s not in vocab:
-    vocab.append_token(s)
+for token in special_tokens:
+  if token not in vocab:
+    vocab.append_token(token)
 
 input_train.var["id_in_vocab"] = [
   1 if gene in vocab else -1 for gene in input_train.var["feature_name"]
@@ -231,7 +233,7 @@ batch_ids = np.array(batch_ids)
   valid_celltype_labels,
   train_batch_labels,
   valid_batch_labels,
-) = sklearn.model_selection.train_test_split(
+) = train_test_split(
   all_counts, celltypes_labels, batch_ids, test_size=0.1, shuffle=True
 )
 
@@ -337,6 +339,8 @@ if training_settings["ADV"]:
     d_model=embsize,
     n_cls=num_batch_types,
   ).to(device)
+else: 
+  discriminator = None
 
 criterion = scgpt.loss.masked_mse_loss
 criterion_cls = torch.nn.CrossEntropyLoss()
@@ -359,6 +363,10 @@ if training_settings["ADV"]:
   scheduler_D = torch.optim.lr_scheduler.StepLR(
     optimizer_D, schedule_interval, gamma=hyperparameters["schedule_ratio"]
   )
+else:
+  criterion_adv = None
+  optimizer_E = None
+  optimizer_D = None
 
 scaler = torch.cuda.amp.GradScaler(enabled=hyperparameters["amp"])
 
@@ -435,6 +443,7 @@ for epoch in range(1, hyperparameters["epochs"] + 1):
     training_settings,
     criterion_cls,
     criterion_dab,
+    return_raw=False
   )
 
   elapsed = time.time() - epoch_start_time
@@ -462,7 +471,7 @@ for epoch in range(1, hyperparameters["epochs"] + 1):
 
 ### Inference with fine-tuned scGPT model
 
-predictions, labels = test(
+predictions = test(
   best_model, 
   input_test,
   hyperparameters,

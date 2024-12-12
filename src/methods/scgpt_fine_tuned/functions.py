@@ -4,6 +4,8 @@ import warnings
 import numpy as np
 import scgpt
 from scipy.sparse import issparse
+import torch
+from torch.utils.data import Dataset, DataLoader
 
 
 def prepare_data(
@@ -87,9 +89,6 @@ def prepare_data(
 
     return train_data_pt, valid_data_pt
 
-import torch
-from torch.utils.data import Dataset, DataLoader
-
 # dataset
 class SeqDataset(Dataset):
     def __init__(self, data):
@@ -127,7 +126,7 @@ def prepare_dataloader(
             subsets.append(batch_indices)
         data_loader = DataLoader(
                 dataset=dataset,
-                batch_sampler=SubsetsBatchSampler(
+                batch_sampler=scgpt.SubsetsBatchSampler(
                 subsets,
                 batch_size,
                 intra_subset_shuffle=intra_domain_shuffle,
@@ -400,7 +399,7 @@ def evaluate(
     training_settings,
     criterion_cls,
     criterion_dab,
-    return_raw=False,
+    return_raw
 ):
     """
     Evaluate the model on the evaluation data.
@@ -417,34 +416,38 @@ def evaluate(
             input_values = batch_data["values"].to(device)
             target_values = batch_data["target_values"].to(device)
             batch_labels = batch_data["batch_labels"].to(device)
-            celltype_labels = batch_data["celltype_labels"].to(device)
+            if not return_raw:
+                celltype_labels = batch_data["celltype_labels"].to(device)
 
-        src_key_padding_mask = input_gene_ids.eq(vocab[pad_token])
-        with torch.cuda.amp.autocast(enabled=hyperparameters["amp"]):
-            output_dict = model(
-                input_gene_ids,
-                input_values,
-                src_key_padding_mask=src_key_padding_mask,
-                batch_labels=batch_labels if hyperparameters["DSBN"] else None,
-                CLS=training_settings["CLS"],  # evaluation does not need CLS or CCE
-                CCE=False,
-                MVC=False,
-                ECS=False,
-                do_sample=False,
-            )
-            output_values = output_dict["cls_output"]
-            loss = criterion_cls(output_values, celltype_labels)
-
-            if training_settings["DAB"]:
-                loss_dab = criterion_dab(output_dict["dab_output"], batch_labels)
-
-        total_loss += loss.item() * len(input_gene_ids)
-        accuracy = (output_values.argmax(1) == celltype_labels).sum().item()
-        total_error += (1 - accuracy / len(input_gene_ids)) * len(input_gene_ids)
-        total_dab += loss_dab.item() * len(input_gene_ids) if DAB else 0.0
-        total_num += len(input_gene_ids)
-        preds = output_values.argmax(1).cpu().numpy()
-        predictions.append(preds)
+            src_key_padding_mask = input_gene_ids.eq(vocab[pad_token])
+            with torch.cuda.amp.autocast(enabled=hyperparameters["amp"]):
+                output_dict = model(
+                    input_gene_ids,
+                    input_values,
+                    src_key_padding_mask=src_key_padding_mask,
+                    batch_labels=batch_labels if hyperparameters["DSBN"] else None,
+                    CLS=training_settings["CLS"],  # evaluation does not need CLS or CCE
+                    CCE=False,
+                    MVC=False,
+                    ECS=False,
+                    do_sample=False,
+                )
+                output_values = output_dict["cls_output"]
+                print(output_values)
+                if not return_raw:
+                    loss = criterion_cls(output_values, celltype_labels)
+                    if training_settings["DAB"]:
+                        loss_dab = criterion_dab(output_dict["dab_output"], batch_labels)
+        
+            if return_raw:
+                preds = output_values.argmax(1).cpu().numpy()
+                predictions.append(preds)
+            else:
+                total_loss += loss.item() * len(input_gene_ids)
+                accuracy = (output_values.argmax(1) == celltype_labels).sum().item()
+                total_error += (1 - accuracy / len(input_gene_ids)) * len(input_gene_ids)
+                total_dab += loss_dab.item() * len(input_gene_ids) if training_settings["DAB"] else 0.0
+                total_num += len(input_gene_ids)
 
     if return_raw:
       return np.concatenate(predictions, axis=0)
@@ -473,9 +476,6 @@ def test(
         else adata.layers["X_binned"]
     )
 
-    celltypes_labels = adata.obs["celltype_id"].tolist()  # make sure count from 0
-    celltypes_labels = np.array(celltypes_labels)
-
     batch_ids = adata.obs["batch_id"].tolist()
     batch_ids = np.array(batch_ids)
 
@@ -502,7 +502,6 @@ def test(
         "values": input_values_test,
         "target_values": tokenized_test["values"],
         "batch_labels": torch.from_numpy(batch_ids).long(),
-        "celltype_labels": torch.from_numpy(celltypes_labels).long(),
     }
 
     test_loader = DataLoader(
@@ -522,11 +521,10 @@ def test(
         vocab,
         pad_token,
         hyperparameters,
-        training_settings["CLS"],
-        training_settings["DAB"],
+        training_settings,
         criterion_cls,
         criterion_dab,
-        return_raw=True,
+        return_raw=True
     )
 
-    return predictions, celltypes_labels
+    return predictions
