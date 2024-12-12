@@ -20,6 +20,9 @@ methods = [
   scimilarity.run(
     args: [model: file("s3://openproblems-work/cache/scimilarity-model_v1.1.tar.gz")]
   ),
+  scimilarity_knn.run(
+    args: [model: file("s3://openproblems-work/cache/scimilarity-model_v1.1.tar.gz")]
+  ),
   seurat_transferdata,
   singler,
   xgboost,
