@@ -39,7 +39,6 @@ from functions import evaluate, prepare_data, prepare_dataloader, train, test, e
 print('Reading input files', flush=True)
 input_train = ad.read_h5ad(par['input_train'])
 input_test = ad.read_h5ad(par['input_test'])
-input_solution = ad.read_h5ad("resources_test/task_label_projection/cxg_immune_cell_atlas/solution.h5ad")
 
 if input_train.uns["dataset_organism"] != "homo_sapiens":
   raise ValueError(
