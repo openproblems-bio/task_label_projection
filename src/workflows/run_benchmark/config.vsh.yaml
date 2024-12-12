@@ -73,6 +73,7 @@ dependencies:
   - name: methods/naive_bayes
   - name: methods/scanvi
   - name: methods/scanvi_scarches
+  - name: methods/scgpt_fine_tuned
   - name: methods/seurat_transferdata
   - name: methods/singler
   - name: methods/xgboost

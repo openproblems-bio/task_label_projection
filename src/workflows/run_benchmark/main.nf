@@ -17,7 +17,8 @@ methods = [
   scanvi_scarches,
   seurat_transferdata,
   singler,
-  xgboost
+  xgboost,
+  scgpt_fine_tuned
 ]
 
 metrics = [
