@@ -201,12 +201,13 @@ test.obs["prediction"] = predictions.values
 print(test.obs["prediction"].value_counts(), flush=True)
 
 print("\n>>> Converting predictions to labels...", flush=True)
-test.obs["label_pred"] = test.obs["prediction"].map(matches)
-print(test.obs["label_pred"].value_counts(), flush=True)
+input_test.obs["label_pred"] = test.obs["prediction"].values
+input_test.obs = input_test.obs.replace(dict(label_pred=matches))
+print(input_test.obs["label_pred"].value_counts(), flush=True)
 
 print("\n>>> Storing output...", flush=True)
 output = ad.AnnData(
-    obs=test.obs[["label_pred"]],
+    obs=input_test.obs[["label_pred"]],
     uns={
         'method_id': meta['name'],
         'dataset_id': input_test.uns['dataset_id'],
