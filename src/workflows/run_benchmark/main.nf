@@ -23,10 +23,10 @@ methods = [
   scimilarity_knn.run(
     args: [model: file("s3://openproblems-work/cache/scimilarity-model_v1.1.tar.gz")]
   ),
+  scgpt_zero_shot,
   seurat_transferdata,
   singler,
   xgboost,
-  scgpt_zero_shot
 ]
 
 metrics = [
