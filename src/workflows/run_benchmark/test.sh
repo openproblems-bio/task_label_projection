@@ -22,7 +22,7 @@ nextflow run . \
   -resume \
   -entry auto \
   -c common/nextflow_helpers/labels_ci.config \
-  --input_states "$DATASETS_DIR/pancreas/state.yaml" \
+  --input_states "$DATASETS_DIR/cxg_immune_cell_atlas/state.yaml" \
   --rename_keys 'input_train:output_train;input_test:output_test;input_solution:output_solution' \
   --settings '{"output_scores": "scores.yaml", "output_dataset_info": "dataset_info.yaml", "output_method_configs": "method_configs.yaml", "output_metric_configs": "metric_configs.yaml", "output_task_info": "task_info.yaml"}' \
   --publish_dir "$OUTPUT_DIR" \

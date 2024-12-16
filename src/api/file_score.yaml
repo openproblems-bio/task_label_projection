@@ -1,5 +1,5 @@
 type: file
-example: "resources_test/task_label_projection/pancreas/score.h5ad"
+example: "resources_test/task_label_projection/cxg_immune_cell_atlas/score.h5ad"
 label: "Score"
 summary: "Metric score file"
 info:

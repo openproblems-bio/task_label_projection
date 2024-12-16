@@ -6,8 +6,8 @@ library(magrittr, warn.conflicts = FALSE)
 
 ## VIASH START
 par <- list(
-  input_train = "resources_test/task_label_projection/pancreas/train.h5ad",
-  input_test = "resources_test/task_label_projection/pancreas/test.h5ad",
+  input_train = "resources_test/task_label_projection/cxg_immune_cell_atlas/train.h5ad",
+  input_test = "resources_test/task_label_projection/cxg_immune_cell_atlas/test.h5ad",
   output = "output.h5ad"
 )
 meta <- list(

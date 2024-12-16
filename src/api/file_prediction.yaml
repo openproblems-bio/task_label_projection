@@ -1,5 +1,5 @@
 type: file
-example: "resources_test/task_label_projection/pancreas/prediction.h5ad"
+example: "resources_test/task_label_projection/cxg_immune_cell_atlas/prediction.h5ad"
 label: "Prediction"
 summary: "The prediction file"
 info:

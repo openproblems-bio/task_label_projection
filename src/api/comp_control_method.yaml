@@ -29,8 +29,8 @@ arguments:
     direction: output
     required: true
 test_resources:
-  - path: /resources_test/task_label_projection/pancreas
-    dest: resources_test/task_label_projection/pancreas
+  - path: /resources_test/task_label_projection/cxg_immune_cell_atlas
+    dest: resources_test/task_label_projection/cxg_immune_cell_atlas
   - type: python_script
     path: /common/component_tests/check_config.py
   - type: python_script

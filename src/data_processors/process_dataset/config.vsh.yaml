@@ -23,8 +23,8 @@ resources:
     path: script.py
   - path: /common/helper_functions/subset_h5ad_by_format.py
 test_resources:
-  - path: /resources_test/common/pancreas
-    dest: resources_test/common/pancreas
+  - path: /resources_test/common/cxg_immune_cell_atlas
+    dest: resources_test/common/cxg_immune_cell_atlas
   - type: python_script
     path: /common/component_tests/run_and_check_output.py
 engines:

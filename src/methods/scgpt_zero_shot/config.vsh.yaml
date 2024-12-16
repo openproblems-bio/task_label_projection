@@ -1,0 +1,55 @@
+__merge__: ../../api/base_method.yaml
+
+name: scgpt_zero_shot
+label: scGPT zero-shot
+summary: "Reference mapping using cell embedding by pretrained scGPT model."
+description: |
+  scGPT is a foundation model for single-cell biology based on a generative pre-trained transformer and trained on a repository of over 33 million cells. Following the zero-shot approach, a pre-trained scGPT model is used to embed cells and map unlabelled cells in a query set to the reference dataset with provided annotations based on a nearest neighbor similarity search. 
+
+references: 
+  doi: 10.1038/s41592-024-02201-0
+
+links: 
+  documentation: https://scgpt.readthedocs.io/en/latest/
+  repository: https://github.com/bowang-lab/scGPT
+
+info:
+  preferred_normalization: log_cp10k
+
+arguments: 
+  - name: --model_name
+    type: string
+    description: String giving the name of the scGPT model to use
+    choices: ["scGPT_human", "scGPT_CP"]
+    default: scGPT_human
+  - name: --model
+    type: file
+    description: Path to the directory containing the scGPT model specified by model_name or a .zip/.tar.gz archive to extract. If not given the model will be downloaded.
+    required: false
+  - name: --use_faiss
+    type: boolean
+    description: Whether to use faiss for similarity search
+
+resources:
+  - type: python_script
+    path: script.py
+
+engines:
+  - type: docker
+    image: openproblems/base_pytorch_nvidia:1.0.0
+    setup:
+      - type: python
+        pypi:
+          - gdown
+          - scgpt # Install from PyPI to get dependencies
+          - faiss-cpu # TODO: Try installing faiss-gpu 
+      - type: docker
+        # Force re-installing from GitHub to get bug fixes
+        run: |
+          pip install --upgrade --no-deps --force-reinstall git+https://github.com/bowang-lab/scGPT.git
+
+runners:
+  - type: executable
+  - type: nextflow
+    directives:
+      label: [midtime, midmem, midcpu, gpu]
