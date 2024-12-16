@@ -10,7 +10,7 @@ par <- list(
   output = "output.h5ad"
 )
 meta <- list(
-  name = "seurat_transferdata"
+  name = "singler"
 )
 ## VIASH END
 
@@ -18,10 +18,20 @@ cat(">> Load input data\n")
 input_train <- read_h5ad(par$input_train)
 input_test <- read_h5ad(par$input_test)
 
+test_mat <- t(input_test$layers[["normalized"]])
+if (inherits(test_mat, "dgRMatrix")) {
+  test_mat <- as(test_mat, "CsparseMatrix")
+}
+
+train_mat <- t(input_train$layers[["normalized"]])
+if (inherits(train_mat, "dgRMatrix")) {
+  train_mat <- as(train_mat, "CsparseMatrix")
+}
+
 cat(">> Run method\n")
 pred <- SingleR::SingleR(
-  test = t(input_test$layers[["normalized"]]),
-  ref = t(input_train$layers[["normalized"]]),
+  test = test_mat,
+  ref = train_mat,
   labels = input_train$obs$label
 )
 
