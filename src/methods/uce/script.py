@@ -250,27 +250,26 @@ run_eval(
 embedded_test = ad.read_h5ad(os.path.join(model_args["dir"], "input_uce_adata.h5ad"))
 print(embedded_test, flush=True)
 
-# print("\n>>> Storing output...", flush=True)
-# output = ad.AnnData(
-#     obs=adata.obs[[]],
-#     var=adata.var[[]],
-#     obsm={
-#         "X_emb": embedded_adata.obsm["X_uce"],
-#     },
-#     uns={
-#         "dataset_id": adata.uns["dataset_id"],
-#         "normalization_id": adata.uns["normalization_id"],
-#         "method_id": meta["name"],
-#     },
-# )
-# print(output)
+print("\n>>> Classifying test data...", flush=True)
+embedded_test.obs["label_pred"] = classifier.predict(embedded_test.obsm["X_uce"])
 
-# print("\n>>> Writing output AnnData to file...", flush=True)
-# output.write_h5ad(par["output"], compression="gzip")
+print("\n>>> Storing output...", flush=True)
+output = ad.AnnData(
+  obs=embedded_test.obs[["label_pred"]],
+  uns={
+    'method_id': meta['name'],
+    'dataset_id': input_test.uns['dataset_id'],
+    'normalization_id': input_test.uns['normalization_id']
+  }
+)
+print(output)
 
-# print("\n>>> Cleaning up temporary directories...", flush=True)
-# work_dir.cleanup()
-# if model_temp is not None:
-#     model_temp.cleanup()
+print("\n>>> Writing output AnnData to file...", flush=True)
+output.write_h5ad(par["output"], compression="gzip")
+
+print("\n>>> Cleaning up temporary directories...", flush=True)
+work_dir.cleanup()
+if model_temp is not None:
+    model_temp.cleanup()
 
 print("\n>>> Done!", flush=True)
