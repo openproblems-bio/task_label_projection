@@ -233,6 +233,23 @@ with open(model_args["chroms_path"], "wb+") as f:
 with open(model_args["starts_path"], "wb+") as f:
     pickle.dump({model_args["name"]: dataset_pos}, f)
 
+print("\n>>> Embedding test data...", flush=True)
+accelerator = Accelerator(project_dir=model_args["dir"])
+accelerator.wait_for_everyone()
+shapes_dict = {model_args["name"]: (num_cells, num_genes)}
+run_eval(
+    adata=processed_test,
+    name=model_args["name"],
+    pe_idx_path=model_args["pe_idx_path"],
+    chroms_path=model_args["chroms_path"],
+    starts_path=model_args["starts_path"],
+    shapes_dict=shapes_dict,
+    accelerator=accelerator,
+    args=model_parameters,
+)
+embedded_test = ad.read_h5ad(os.path.join(model_args["dir"], "input_uce_adata.h5ad"))
+print(embedded_test, flush=True)
+
 # print("\n>>> Storing output...", flush=True)
 # output = ad.AnnData(
 #     obs=adata.obs[[]],
