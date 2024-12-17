@@ -11,6 +11,7 @@ import numpy as np
 import pandas as pd
 import torch
 from accelerate import Accelerator
+import sklearn.linear_model
 
 # Code has hardcoded paths that only work correctly inside the UCE directory
 if os.path.isdir("UCE"):
@@ -191,6 +192,10 @@ run_eval(
 )
 embedded_train = ad.read_h5ad(os.path.join(model_args["dir"], "input_uce_adata.h5ad"))
 print(embedded_train, flush=True)
+
+print("\n>>> Training logistic regression classifier...", flush=True)
+classifier = sklearn.linear_model.LogisticRegression()
+classifier.fit(embedded_train.obsm["X_uce"], embedded_train.obs["label"].astype(str))
 
 # print("\n>>> Storing output...", flush=True)
 # output = ad.AnnData(
