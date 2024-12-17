@@ -45,18 +45,19 @@ par = {
 meta = {"name": "uce"}
 ## VIASH END
 
-# print(">>> Reading input...", flush=True)
-# sys.path.append(meta["resources_dir"])
-# from read_anndata_partial import read_anndata
+print(f"====== UCE ======", flush=True)
 
-# adata = read_anndata(par["input"], X="layers/counts", obs="obs", var="var", uns="uns")
+print("\n>>> Reading training data...", flush=True)
+print(f"Training H5AD file: '{par['input_train']}'", flush=True)
+input_train = ad.read_h5ad(par['input_train'])
+print(input_train, flush=True)
 
-# if adata.uns["dataset_organism"] == "homo_sapiens":
-#     species = "human"
-# elif adata.uns["dataset_organism"] == "mus_musculus":
-#     species = "mouse"
-# else:
-#     raise ValueError(f"Species '{adata.uns['dataset_organism']}' not yet implemented")
+if input_train.uns["dataset_organism"] == "homo_sapiens":
+    species = "human"
+elif input_train.uns["dataset_organism"] == "mus_musculus":
+    species = "mouse"
+else:
+    raise ValueError(f"Species '{input_train.uns['dataset_organism']}' not yet implemented")
 
 # print("\n>>> Creating working directory...", flush=True)
 # work_dir = tempfile.TemporaryDirectory()
