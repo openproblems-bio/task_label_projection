@@ -197,6 +197,42 @@ print("\n>>> Training logistic regression classifier...", flush=True)
 classifier = sklearn.linear_model.LogisticRegression()
 classifier.fit(embedded_train.obsm["X_uce"], embedded_train.obs["label"].astype(str))
 
+print("\n>>> Reading test data...", flush=True)
+print(f"Test H5AD file: '{par['input_test']}'", flush=True)
+input_test = ad.read_h5ad(par['input_test'])
+print(input_test, flush=True)
+
+print("\n>>> Preprocessing test data...", flush=True)
+input_test.X = input_test.layers["counts"]
+input_test.var_names = input_test.var["feature_name"]
+input_test.write_h5ad(os.path.join(model_args["dir"], "input_test.h5ad"))
+
+row_test = pd.Series()
+row_test.path = "input_test.h5ad"
+row_test.covar_col = np.nan
+row_test.species = species
+
+processed_test, num_cells, num_genes = process_raw_anndata(
+    row=row_test,
+    h5_folder_path=model_args["dir"],
+    npz_folder_path=model_args["dir"],
+    scp="",
+    skip=model_args["skip"],
+    additional_filter=model_args["filter"],
+    root=model_args["dir"],
+)
+print(processed_test, flush=True)
+
+print("\n>>> Generating test data indexes...", flush=True)
+pe_row_idxs, dataset_chroms, dataset_pos = adata_path_to_prot_chrom_starts(
+    processed_test, species, spec_pe_genes, gene_to_chrom_pos, offset
+)
+torch.save({model_args["name"]: pe_row_idxs}, model_args["pe_idx_path"])
+with open(model_args["chroms_path"], "wb+") as f:
+    pickle.dump({model_args["name"]: dataset_chroms}, f)
+with open(model_args["starts_path"], "wb+") as f:
+    pickle.dump({model_args["name"]: dataset_pos}, f)
+
 # print("\n>>> Storing output...", flush=True)
 # output = ad.AnnData(
 #     obs=adata.obs[[]],
