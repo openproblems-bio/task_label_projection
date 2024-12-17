@@ -17,11 +17,11 @@ methods = [
   naive_bayes,
   scanvi,
   scanvi_scarches,
+  scgpt_fine_tuned
+  scgpt_zero_shot,
   seurat_transferdata,
   singler,
   xgboost,
-  scgpt_zero_shot,
-  scgpt_fine_tuned
 ]
 
 metrics = [
