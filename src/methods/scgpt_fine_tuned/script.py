@@ -144,16 +144,11 @@ scgpt.utils.add_file_handler(logger, "run.log")
 
 ### Load and pre-process data
 
-# Merge datasets to appy the same pre-processing steps
 input_train.obs["celltype"] = input_train.obs["label"].astype("category")
-input_train.obs["is_test"]  = "0"
-input_test.obs["is_test"]  = "1" 
-input_train = ad.concat([input_train, input_test], join="outer", merge="same", uns_merge="same")
 data_is_raw = False
 filter_gene_by_counts = False
 
 # Make the batch category column
-input_train.obs["batch_id"] = input_train.obs["is_test"].astype("category").cat.codes.values
 num_types = len(input_train.obs["celltype"].unique())
 id2type = dict(enumerate(input_train.obs["celltype"].astype("category").cat.categories))
 input_train.obs["celltype_id"] = input_train.obs["celltype"].astype("category").cat.codes.values
@@ -169,8 +164,14 @@ for token in special_tokens:
 input_train.var["id_in_vocab"] = [
   1 if gene in vocab else -1 for gene in input_train.var["feature_name"]
 ]    
-gene_ids_in_vocab = np.array(input_train.var["id_in_vocab"])
 input_train = input_train[:, input_train.var["id_in_vocab"] >= 0]
+
+input_test.var["id_in_vocab"] = [
+  1 if gene in vocab else -1 for gene in input_test.var["feature_name"]
+]    
+input_test = input_test[:, input_train.var["id_in_vocab"] >= 0]
+
+gene_ids_in_vocab = np.array(input_train.var["id_in_vocab"]) + np.array(input_test.var["id_in_vocab"])
 
 logger.info(
   f"match {np.sum(gene_ids_in_vocab >= 0)}/{len(gene_ids_in_vocab)} genes "
@@ -204,9 +205,6 @@ preprocessor = scgpt.preprocess.Preprocessor(
   result_binned_key="X_binned",  # the key in input_train.layers to store the binned data
 )
 
-input_test = input_train[input_train.obs["is_test"] == "1"]
-input_train = input_train[input_train.obs["is_test"] == "0"]
-
 preprocessor(input_train, batch_key=None)
 preprocessor(input_test, batch_key=None)
 
@@ -220,9 +218,8 @@ genes = input_train.var["feature_name"].tolist()
 celltypes_labels = input_train.obs["celltype_id"].tolist()  # make sure count from 0
 celltypes_labels = np.array(celltypes_labels)
 
-batch_ids = input_train.obs["batch_id"].tolist()
+batch_ids = np.zeros(len(input_train.obs), dtype=int)
 num_batch_types = len(set(batch_ids))
-batch_ids = np.array(batch_ids)
 
 (
   train_data,
