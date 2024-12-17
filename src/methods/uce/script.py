@@ -59,41 +59,41 @@ elif input_train.uns["dataset_organism"] == "mus_musculus":
 else:
     raise ValueError(f"Species '{input_train.uns['dataset_organism']}' not yet implemented")
 
-# print("\n>>> Creating working directory...", flush=True)
-# work_dir = tempfile.TemporaryDirectory()
-# print(f"Working directory: '{work_dir.name}'", flush=True)
+print("\n>>> Creating working directory...", flush=True)
+work_dir = tempfile.TemporaryDirectory()
+print(f"Working directory: '{work_dir.name}'", flush=True)
 
-# print("\n>>> Getting model files...", flush=True)
-# if os.path.isdir(par["model"]):
-#     model_temp = None
-#     model_dir = par["model"]
-# else:
-#     model_temp = tempfile.TemporaryDirectory()
-#     model_dir = model_temp.name
+print("\n>>> Getting model files...", flush=True)
+if os.path.isdir(par["model"]):
+    model_temp = None
+    model_dir = par["model"]
+else:
+    model_temp = tempfile.TemporaryDirectory()
+    model_dir = model_temp.name
 
-#     if zipfile.is_zipfile(par["model"]):
-#         print("Extracting UCE model from .zip...", flush=True)
-#         with zipfile.ZipFile(par["model"], "r") as zip_file:
-#             zip_file.extractall(model_dir)
-#     elif tarfile.is_tarfile(par["model"]) and par["model"].endswith(".tar.gz"):
-#         print("Extracting model from .tar.gz...", flush=True)
-#         with tarfile.open(par["model"], "r:gz") as tar_file:
-#             tar_file.extractall(model_dir)
-#             model_dir = os.path.join(model_dir, os.listdir(model_dir)[0])
-#     else:
-#         raise ValueError(
-#             f"The 'model' argument should be a directory a .zip file or a .tar.gz file"
-#         )
+    if zipfile.is_zipfile(par["model"]):
+        print("Extracting UCE model from .zip...", flush=True)
+        with zipfile.ZipFile(par["model"], "r") as zip_file:
+            zip_file.extractall(model_dir)
+    elif tarfile.is_tarfile(par["model"]) and par["model"].endswith(".tar.gz"):
+        print("Extracting model from .tar.gz...", flush=True)
+        with tarfile.open(par["model"], "r:gz") as tar_file:
+            tar_file.extractall(model_dir)
+            model_dir = os.path.join(model_dir, os.listdir(model_dir)[0])
+    else:
+        raise ValueError(
+            f"The 'model' argument should be a directory a .zip file or a .tar.gz file"
+        )
 
-# print(f"Model directory: '{model_dir}'", flush=True)
+print(f"Model directory: '{model_dir}'", flush=True)
 
-# print("Extracting protein embeddings...", flush=True)
-# with tarfile.open(
-#     os.path.join(model_dir, "protein_embeddings.tar.gz"), "r:gz"
-# ) as tar_file:
-#     tar_file.extractall("./model_files")
-# protein_embeddings_dir = os.path.join("./model_files", "protein_embeddings")
-# print(f"Protein embeddings directory: '{protein_embeddings_dir}'", flush=True)
+print("Extracting protein embeddings...", flush=True)
+with tarfile.open(
+    os.path.join(model_dir, "protein_embeddings.tar.gz"), "r:gz"
+) as tar_file:
+    tar_file.extractall("./model_files")
+protein_embeddings_dir = os.path.join("./model_files", "protein_embeddings")
+print(f"Protein embeddings directory: '{protein_embeddings_dir}'", flush=True)
 
 # # The following sections implement methods in the UCE.evaluate.AnndataProcessor
 # # class due to the object not being compatible with the Open Problems setup
