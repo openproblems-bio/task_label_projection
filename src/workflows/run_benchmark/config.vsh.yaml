@@ -90,6 +90,7 @@ dependencies:
   - name: methods/seurat_transferdata
   - name: methods/singler
   - name: methods/xgboost
+  - name: methods/uce
   - name: metrics/accuracy
   - name: metrics/f1
 
