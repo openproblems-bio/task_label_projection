@@ -122,7 +122,7 @@ row.path = "input.h5ad"
 row.covar_col = np.nan
 row.species = species
 
-processed_adata, num_cells, num_genes = process_raw_anndata(
+processed_train, num_cells, num_genes = process_raw_anndata(
     row=row,
     h5_folder_path=model_args["dir"],
     npz_folder_path=model_args["dir"],
@@ -131,6 +131,7 @@ processed_adata, num_cells, num_genes = process_raw_anndata(
     additional_filter=model_args["filter"],
     root=model_args["dir"],
 )
+print(processed_train, flush=True)
 
 # AnndataProcessor.generate_idxs()
 print("\n>>> Generating training data indexes...", flush=True)
@@ -141,7 +142,7 @@ gene_to_chrom_pos = get_spec_chrom_csv(model_args["spec_chrom_csv_path"])
 spec_pe_genes = list(species_to_pe[species].keys())
 offset = species_to_offsets[species]
 pe_row_idxs, dataset_chroms, dataset_pos = adata_path_to_prot_chrom_starts(
-    processed_adata, species, spec_pe_genes, gene_to_chrom_pos, offset
+    processed_train, species, spec_pe_genes, gene_to_chrom_pos, offset
 )
 torch.save({model_args["name"]: pe_row_idxs}, model_args["pe_idx_path"])
 with open(model_args["chroms_path"], "wb+") as f:
@@ -149,48 +150,49 @@ with open(model_args["chroms_path"], "wb+") as f:
 with open(model_args["starts_path"], "wb+") as f:
     pickle.dump({model_args["name"]: dataset_pos}, f)
 
-# # AnndataProcessor.run_evaluation()
-# print("\n>>> Evaluating model...", flush=True)
-# model_parameters = Namespace(
-#     token_dim=5120,
-#     d_hid=5120,
-#     nlayers=33,  # Small model = 4, full model = 33
-#     output_dim=1280,
-#     multi_gpu=False,
-#     token_file=os.path.join(model_dir, "all_tokens.torch"),
-#     dir=model_args["dir"],
-#     pad_length=1536,
-#     sample_size=1024,
-#     cls_token_idx=3,
-#     CHROM_TOKEN_OFFSET=143574,
-#     chrom_token_right_idx=2,
-#     chrom_token_left_idx=1,
-#     pad_token_idx=0,
-# )
+# AnndataProcessor.run_evaluation()
+print("\n>>> Embedding training data...", flush=True)
+model_parameters = Namespace(
+    token_dim=5120,
+    d_hid=5120,
+    nlayers=33,  # Small model = 4, full model = 33
+    output_dim=1280,
+    multi_gpu=False,
+    token_file=os.path.join(model_dir, "all_tokens.torch"),
+    dir=model_args["dir"],
+    pad_length=1536,
+    sample_size=1024,
+    cls_token_idx=3,
+    CHROM_TOKEN_OFFSET=143574,
+    chrom_token_right_idx=2,
+    chrom_token_left_idx=1,
+    pad_token_idx=0,
+)
 
-# if model_parameters.nlayers == 4:
-#     model_parameters.model_loc = os.path.join(model_dir, "4layer_model.torch")
-#     model_parameters.batch_size = 100
-# else:
-#     model_parameters.model_loc = os.path.join(model_dir, "33l_8ep_1024t_1280.torch")
-#     model_parameters.batch_size = 25
+if model_parameters.nlayers == 4:
+    model_parameters.model_loc = os.path.join(model_dir, "4layer_model.torch")
+    model_parameters.batch_size = 100
+else:
+    model_parameters.model_loc = os.path.join(model_dir, "33l_8ep_1024t_1280.torch")
+    model_parameters.batch_size = 25
 
-# accelerator = Accelerator(project_dir=model_args["dir"])
-# accelerator.wait_for_everyone()
-# shapes_dict = {model_args["name"]: (num_cells, num_genes)}
-# run_eval(
-#     adata=processed_adata,
-#     name=model_args["name"],
-#     pe_idx_path=model_args["pe_idx_path"],
-#     chroms_path=model_args["chroms_path"],
-#     starts_path=model_args["starts_path"],
-#     shapes_dict=shapes_dict,
-#     accelerator=accelerator,
-#     args=model_parameters,
-# )
+accelerator = Accelerator(project_dir=model_args["dir"])
+accelerator.wait_for_everyone()
+shapes_dict = {model_args["name"]: (num_cells, num_genes)}
+run_eval(
+    adata=processed_train,
+    name=model_args["name"],
+    pe_idx_path=model_args["pe_idx_path"],
+    chroms_path=model_args["chroms_path"],
+    starts_path=model_args["starts_path"],
+    shapes_dict=shapes_dict,
+    accelerator=accelerator,
+    args=model_parameters,
+)
+embedded_train = ad.read_h5ad(os.path.join(model_args["dir"], "input_uce_adata.h5ad"))
+print(embedded_train, flush=True)
 
 # print("\n>>> Storing output...", flush=True)
-# embedded_adata = ad.read_h5ad(os.path.join(model_args["dir"], "input_uce_adata.h5ad"))
 # output = ad.AnnData(
 #     obs=adata.obs[[]],
 #     var=adata.var[[]],
