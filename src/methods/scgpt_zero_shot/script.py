@@ -17,7 +17,7 @@ par = {
   'model': 'scGPT_human'
 }
 meta = {
-  'name': 'scgpt'
+  'name': 'scgpt_zero_shot'
 }
 ## VIASH END
 
