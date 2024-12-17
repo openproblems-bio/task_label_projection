@@ -11,7 +11,6 @@ import torch
 import numpy as np
 from scipy.sparse import issparse
 import torch
-import sklearn
 from torchtext.vocab import Vocab
 import scgpt
 from sklearn.model_selection import train_test_split
@@ -26,14 +25,14 @@ par = {
   'model': 'scGPT_human'
 }
 meta = {
-  'name': 'scgpt',
+  'name': 'scgpt_fine_tuned',
   'temp_dir': 'tmp'
 }
 ## VIASH END
 
 
 sys.path.append(meta["resources_dir"])
-from functions import evaluate, prepare_data, prepare_dataloader, train, test, evaluate
+from functions import prepare_data, prepare_dataloader, train, test, evaluate
 
 
 ### Load input data and model
@@ -159,7 +158,6 @@ num_types = len(input_train.obs["celltype"].unique())
 id2type = dict(enumerate(input_train.obs["celltype"].astype("category").cat.categories))
 input_train.obs["celltype_id"] = input_train.obs["celltype"].astype("category").cat.codes.values
 
-from pathlib import Path
 model_config_file = model_dir / "args.json"
 model_file = model_dir / "best_model.pt"
 vocab_file = model_dir / "vocab.json"
