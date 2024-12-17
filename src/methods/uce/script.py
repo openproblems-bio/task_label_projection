@@ -97,55 +97,57 @@ print(f"Protein embeddings directory: '{protein_embeddings_dir}'", flush=True)
 
 # # The following sections implement methods in the UCE.evaluate.AnndataProcessor
 # # class due to the object not being compatible with the Open Problems setup
-# model_args = {
-#     "dir": work_dir.name + "/",
-#     "skip": True,
-#     "filter": False,  # Turn this off to get embedding for all cells
-#     "name": "input",
-#     "offset_pkl_path": os.path.join(model_dir, "species_offsets.pkl"),
-#     "spec_chrom_csv_path": os.path.join(model_dir, "species_chrom.csv"),
-#     "pe_idx_path": os.path.join(work_dir.name, "input_pe_row_idxs.pt"),
-#     "chroms_path": os.path.join(work_dir.name, "input_chroms.pkl"),
-#     "starts_path": os.path.join(work_dir.name, "input_starts.pkl"),
-# }
+model_args = {
+    "dir": work_dir.name + "/",
+    "skip": True,
+    "filter": False,  # Turn this off to get embedding for all cells
+    "name": "input",
+    "offset_pkl_path": os.path.join(model_dir, "species_offsets.pkl"),
+    "spec_chrom_csv_path": os.path.join(model_dir, "species_chrom.csv"),
+    "pe_idx_path": os.path.join(work_dir.name, "input_pe_row_idxs.pt"),
+    "chroms_path": os.path.join(work_dir.name, "input_chroms.pkl"),
+    "starts_path": os.path.join(work_dir.name, "input_starts.pkl"),
+}
 
-# # AnndataProcessor.preprocess_anndata()
-# print("\n>>> Preprocessing data...", flush=True)
-# # Set var names to gene symbols
-# adata.var_names = adata.var["feature_name"]
-# adata.write_h5ad(os.path.join(model_args["dir"], "input.h5ad"))
+# AnndataProcessor.preprocess_anndata()
+print("\n>>> Preprocessing training data...", flush=True)
+# Set X to counts
+input_train.X = input_train.layers["counts"]
+# Set var names to gene symbols
+input_train.var_names = input_train.var["feature_name"]
+input_train.write_h5ad(os.path.join(model_args["dir"], "input.h5ad"))
 
-# row = pd.Series()
-# row.path = "input.h5ad"
-# row.covar_col = np.nan
-# row.species = species
+row = pd.Series()
+row.path = "input.h5ad"
+row.covar_col = np.nan
+row.species = species
 
-# processed_adata, num_cells, num_genes = process_raw_anndata(
-#     row=row,
-#     h5_folder_path=model_args["dir"],
-#     npz_folder_path=model_args["dir"],
-#     scp="",
-#     skip=model_args["skip"],
-#     additional_filter=model_args["filter"],
-#     root=model_args["dir"],
-# )
+processed_adata, num_cells, num_genes = process_raw_anndata(
+    row=row,
+    h5_folder_path=model_args["dir"],
+    npz_folder_path=model_args["dir"],
+    scp="",
+    skip=model_args["skip"],
+    additional_filter=model_args["filter"],
+    root=model_args["dir"],
+)
 
-# # AnndataProcessor.generate_idxs()
-# print("\n>>> Generating indexes...", flush=True)
-# species_to_pe = get_species_to_pe(protein_embeddings_dir)
-# with open(model_args["offset_pkl_path"], "rb") as f:
-#     species_to_offsets = pickle.load(f)
-# gene_to_chrom_pos = get_spec_chrom_csv(model_args["spec_chrom_csv_path"])
-# spec_pe_genes = list(species_to_pe[species].keys())
-# offset = species_to_offsets[species]
-# pe_row_idxs, dataset_chroms, dataset_pos = adata_path_to_prot_chrom_starts(
-#     processed_adata, species, spec_pe_genes, gene_to_chrom_pos, offset
-# )
-# torch.save({model_args["name"]: pe_row_idxs}, model_args["pe_idx_path"])
-# with open(model_args["chroms_path"], "wb+") as f:
-#     pickle.dump({model_args["name"]: dataset_chroms}, f)
-# with open(model_args["starts_path"], "wb+") as f:
-#     pickle.dump({model_args["name"]: dataset_pos}, f)
+# AnndataProcessor.generate_idxs()
+print("\n>>> Generating training data indexes...", flush=True)
+species_to_pe = get_species_to_pe(protein_embeddings_dir)
+with open(model_args["offset_pkl_path"], "rb") as f:
+    species_to_offsets = pickle.load(f)
+gene_to_chrom_pos = get_spec_chrom_csv(model_args["spec_chrom_csv_path"])
+spec_pe_genes = list(species_to_pe[species].keys())
+offset = species_to_offsets[species]
+pe_row_idxs, dataset_chroms, dataset_pos = adata_path_to_prot_chrom_starts(
+    processed_adata, species, spec_pe_genes, gene_to_chrom_pos, offset
+)
+torch.save({model_args["name"]: pe_row_idxs}, model_args["pe_idx_path"])
+with open(model_args["chroms_path"], "wb+") as f:
+    pickle.dump({model_args["name"]: dataset_chroms}, f)
+with open(model_args["starts_path"], "wb+") as f:
+    pickle.dump({model_args["name"]: dataset_pos}, f)
 
 # # AnndataProcessor.run_evaluation()
 # print("\n>>> Evaluating model...", flush=True)
