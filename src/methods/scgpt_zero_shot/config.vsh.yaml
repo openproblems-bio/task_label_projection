@@ -14,7 +14,7 @@ links:
   repository: https://github.com/bowang-lab/scGPT
 
 info:
-  preferred_normalization: log_cp10k
+  preferred_normalization: counts
 
 arguments: 
   - name: --model_name
