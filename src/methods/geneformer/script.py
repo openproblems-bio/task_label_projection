@@ -232,4 +232,3 @@ output = ad.AnnData(
   }
 )
 output.write_h5ad(par['output'], compression='gzip')
-d = ad.read_h5ad("resources_test/task_label_projection/cxg_immune_cell_atlas/solution.h5ad")
