@@ -4,10 +4,10 @@ name: geneformer
 label: Geneformer
 summary: Geneformer is a foundational transformer model pretrained on a large-scale corpus of single cell transcriptomes to enable context-aware predictions in settings with limited data in network biology.
 description: |
-  Geneformer is a context-aware, attention-based deep learning model pretrained on a large-scale corpus of single-cell transcriptomes to enable context-specific predictions in settings with limited data in network biology. Here, a pre-trained Geneformer model is used to assign cell type labels for an unlabelled dataset.
+  Geneformer is a context-aware, attention-based deep learning model pretrained on a large-scale corpus of single-cell transcriptomes to enable context-specific predictions in settings with limited data in network biology. Here, a pre-trained Geneformer model is fine-tuned and used to predict cell type labels for an unlabelled dataset.
 
 info:
-  preferred_normalization: log_cp10k
+  preferred_normalization: counts
 
 references: 
   doi: 
