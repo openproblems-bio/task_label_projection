@@ -29,9 +29,9 @@ if input_train.uns["dataset_organism"] != "homo_sapiens":
     f"(dataset_organism == '{input_train.uns['dataset_organism']}')"
   )
 
-is_ensembl = all(var_name.startswith("ENSG") for var_name in adata.var_names)
+is_ensembl = all(var_name.startswith("ENSG") for var_name in input_train.var_names)
 if not is_ensembl:
-  raise ValueError(f"Geneformer requires adata.var_names to contain ENSEMBL gene ids")
+  raise ValueError(f"Geneformer requires input_train.var_names to contain ENSEMBL gene ids")
 
 print(f"Getting settings for model '{par['model']}'...", flush=True)
 model_split = par["model"].split("-")
