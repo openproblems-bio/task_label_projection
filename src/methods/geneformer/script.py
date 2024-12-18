@@ -113,8 +113,6 @@ input_train.obs["n_counts"] = input_train.layers["counts"].sum(axis=1)
 input_train.obs["joinid"] = list(range(input_train.n_obs))
 input_train.obs["celltype"] = input_train.obs["label"]
 num_types = len(input_train.obs["celltype"].unique())
-id2type = dict(enumerate(input_train.obs["celltype"].astype("category").cat.categories))
-input_train.obs["celltype_id"] = input_train.obs["celltype"].astype("category").cat.codes.values
 input_train.write_h5ad(os.path.join(input_train_dir, "input_train.h5ad"))
 
 input_test.X = input_test.layers["counts"]
@@ -220,7 +218,7 @@ predictions = trainer.predict(test_data)
 
 predicted_label_ids = np.argmax(predictions.predictions, axis=1)
 predicted_logits = [predictions.predictions[i][predicted_label_ids[i]] for i in range(len(predicted_label_ids))]
-input_test.obs['label_pred'] = [id2type[p] for p in predicted_label_ids]
+input_test.obs['label_pred'] = [id_class_dict[p] for p in predicted_label_ids]
 
 print("Write output AnnData to file", flush=True)
 output = ad.AnnData(
