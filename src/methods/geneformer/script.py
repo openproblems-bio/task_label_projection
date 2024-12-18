@@ -110,7 +110,6 @@ print(">>> Preparing input data...", flush=True)
 input_train.X = input_train.layers["counts"]
 input_train.var["ensembl_id"] = input_train.var["feature_id"]
 input_train.obs["n_counts"] = input_train.layers["counts"].sum(axis=1)
-input_train.obs["joinid"] = list(range(input_train.n_obs))
 input_train.obs["celltype"] = input_train.obs["label"]
 num_types = len(input_train.obs["celltype"].unique())
 input_train.write_h5ad(os.path.join(input_train_dir, "input_train.h5ad"))
@@ -118,14 +117,13 @@ input_train.write_h5ad(os.path.join(input_train_dir, "input_train.h5ad"))
 input_test.X = input_test.layers["counts"]
 input_test.var["ensembl_id"] = input_test.var["feature_id"]
 input_test.obs["n_counts"] = input_test.layers["counts"].sum(axis=1)
-input_test.obs["joinid"] = list(range(input_test.n_obs))
 input_test.write_h5ad(os.path.join(input_test_dir, "input_test.h5ad"))
 
 print(">>> Tokenizing train data...", flush=True)
 special_token = model_details["dataset"] == "95M"
 print(f"Input size: {model_details['input_size']}, Special token: {special_token}")
 tokenizer = TranscriptomeTokenizer(
-  custom_attr_name_dict={"joinid": "joinid", "celltype_id": "celltype_id", "celltype": "celltype"},
+  custom_attr_name_dict={"celltype": "celltype"},
   nproc=n_processors,
   model_input_size=model_details["input_size"],
   special_token=special_token,
@@ -148,7 +146,7 @@ tokenizer = TranscriptomeTokenizer(
 )
 tokenizer.tokenize_data(input_test_dir, tokenized_test_dir, "tokenized", file_format="h5ad")
 
-print('Train model', flush=True)
+print('Fine-tune a pre-trained geneformer model for cell state classification', flush=True)
 cc = Classifier(
   classifier="cell",
   cell_state_dict = {"state_key": "celltype", "states": "all"},
@@ -211,9 +209,7 @@ test_data = test_data.add_column("label", [0] * len(test_data))
 #   output_prefix="predictions",
 # )
 
-# create the trainer
 trainer = Trainer(model=model, data_collator=DataCollatorForCellClassification(token_dictionary=token_dict))
-# use trainer
 predictions = trainer.predict(test_data)
 
 predicted_label_ids = np.argmax(predictions.predictions, axis=1)
