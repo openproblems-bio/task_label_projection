@@ -11,6 +11,7 @@ methods = [
   majority_vote,
   random_labels,
   true_labels,
+  geneformer,
   knn,
   logistic_regression,
   mlp,
