@@ -87,6 +87,7 @@ dependencies:
   - name: methods/scanvi
   - name: methods/scanvi_scarches
   - name: methods/scgpt_zero_shot
+  - name: methods/scprint
   - name: methods/seurat_transferdata
   - name: methods/singler
   - name: methods/xgboost
