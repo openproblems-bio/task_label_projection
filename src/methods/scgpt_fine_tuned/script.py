@@ -36,9 +36,9 @@ from functions import prepare_data, prepare_dataloader, train, test, evaluate
 
 
 ### Load input data and model
-print('Reading input files', flush=True)
-input_train = ad.read_h5ad(par['input_train'])
-input_test = ad.read_h5ad(par['input_test'])
+print("Reading input files", flush=True)
+input_train = ad.read_h5ad(par["input_train"])
+input_test = ad.read_h5ad(par["input_test"])
 
 if input_train.uns["dataset_organism"] != "homo_sapiens":
   raise ValueError(
@@ -133,7 +133,6 @@ explicit_zero_prob = training_settings["MLM"] and hyperparameters["include_zero_
 per_seq_batch_sample = False
 
 # settings for optimizer
-lr_ADV = 1e-3  # learning rate for discriminator, used when ADV is True
 schedule_interval = 1
 
 DAB_separate_optim = True if training_settings["DAB"] > 1 else False
@@ -329,39 +328,11 @@ logger.info(f"Total Post freeze Params {(post_freeze_param_count )}")
 
 model.to(device)
 
-if training_settings["ADV"]:
-  discriminator = scgpt.model.AdversarialDiscriminator(
-    d_model=embsize,
-    n_cls=num_batch_types,
-  ).to(device)
-else: 
-  discriminator = None
-
 criterion = scgpt.loss.masked_mse_loss
 criterion_cls = torch.nn.CrossEntropyLoss()
 criterion_dab = torch.nn.CrossEntropyLoss()
 optimizer = torch.optim.Adam(model.parameters(), lr=hyperparameters["lr"], eps=1e-4 if hyperparameters["amp"] else 1e-8)
 scheduler = torch.optim.lr_scheduler.StepLR(optimizer, schedule_interval, gamma=hyperparameters["schedule_ratio"])
-
-if DAB_separate_optim:
-  optimizer_dab = torch.optim.Adam(model.parameters(), lr=hyperparameters["lr"])
-  scheduler_dab = torch.optim.lr_scheduler.StepLR(
-    optimizer_dab, schedule_interval, gamma=hyperparameters["schedule_ratio"]
-  )
-if training_settings["ADV"]:
-  criterion_adv = torch.nn.CrossEntropyLoss()  # consider using label smoothing
-  optimizer_E = torch.optim.Adam(model.parameters(), lr=lr_ADV)
-  scheduler_E = torch.optim.lr_scheduler.StepLR(
-    optimizer_E, schedule_interval, gamma=hyperparameters["schedule_ratio"]
-  )
-  optimizer_D = torch.optim.Adam(discriminator.parameters(), lr=lr_ADV)
-  scheduler_D = torch.optim.lr_scheduler.StepLR(
-    optimizer_D, schedule_interval, gamma=hyperparameters["schedule_ratio"]
-  )
-else:
-  criterion_adv = None
-  optimizer_E = None
-  optimizer_D = None
 
 scaler = torch.cuda.amp.GradScaler(enabled=hyperparameters["amp"])
 
@@ -406,26 +377,26 @@ for epoch in range(1, hyperparameters["epochs"] + 1):
   )
 
   train(
-    model, 
-    train_loader,
-    device,
-    vocab,
-    pad_token,
-    hyperparameters,
-    training_settings,
-    mask_value,
-    explicit_zero_prob,
-    criterion,
-    criterion_cls,
-    criterion_dab,
-    criterion_adv,
-    scaler,
-    optimizer,
-    discriminator,
-    epoch,
-    optimizer_D, 
-    optimizer_E,
-    scheduler,
+    model=model, 
+    train_loader=train_loader,
+    device=device,
+    vocab=vocab,
+    pad_token=pad_token,
+    hyperparameters=hyperparameters,
+    training_settings=training_settings,
+    mask_value=mask_value,
+    explicit_zero_prob=explicit_zero_prob,
+    criterion=criterion,
+    criterion_cls=criterion_cls,
+    criterion_dab=criterion_dab, 
+    criterion_adv=None,    
+    scaler=scaler,
+    optimizer=optimizer,
+    discriminator=None,
+    epoch=epoch, 
+    optimizer_D=None, 
+    optimizer_E=None,
+    scheduler=scheduler,
   )
 
   val_loss, val_err = evaluate(
@@ -456,12 +427,6 @@ for epoch in range(1, hyperparameters["epochs"] + 1):
     logger.info(f"Best model with score {best_val_loss:5.4f}")
 
   scheduler.step()
-
-  if DAB_separate_optim:
-    scheduler_dab.step()
-  if training_settings["ADV"]:
-    scheduler_D.step()
-    scheduler_E.step()
 
 
 ### Inference with fine-tuned scGPT model

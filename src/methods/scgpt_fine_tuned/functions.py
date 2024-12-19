@@ -100,7 +100,6 @@ class SeqDataset(Dataset):
     def __getitem__(self, idx):
         return {k: v[idx] for k, v in self.data.items()}
 
-from scgpt import SubsetsBatchSampler
 
 # data_loader
 def prepare_dataloader(
