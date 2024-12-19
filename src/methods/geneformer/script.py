@@ -4,6 +4,9 @@ import anndata as ad
 from geneformer import Classifier, TranscriptomeTokenizer, DataCollatorForCellClassification
 from huggingface_hub import hf_hub_download
 import numpy as np
+import datasets
+import pickle
+from transformers import BertForSequenceClassification, Trainer
 
 ## VIASH START
 par = {
@@ -19,7 +22,7 @@ meta = {
 
 n_processors = os.cpu_count()
 
-print('Reading input files', flush=True)
+print('>>> Reading input files', flush=True)
 input_train = ad.read_h5ad(par['input_train'])
 input_test = ad.read_h5ad(par['input_test'])
 
@@ -33,7 +36,7 @@ is_ensembl = all(var_name.startswith("ENSG") for var_name in input_train.var_nam
 if not is_ensembl:
   raise ValueError(f"Geneformer requires input_train.var_names to contain ENSEMBL gene ids")
 
-print(f"Getting settings for model '{par['model']}'...", flush=True)
+print(f">>> Getting settings for model '{par['model']}'...", flush=True)
 model_split = par["model"].split("-")
 model_details = {
   "layers": model_split[1],
@@ -42,7 +45,7 @@ model_details = {
 }
 print(model_details, flush=True)
 
-print("Getting model dictionary files...", flush=True)
+print(">>> Getting model dictionary files...", flush=True)
 if model_details["dataset"] == "95M":
   dictionaries_subfolder = "geneformer"
 elif model_details["dataset"] == "30M":
@@ -83,7 +86,8 @@ tokenized_train_dir = os.path.join(work_dir.name, "tokenized_train")
 os.makedirs(tokenized_train_dir)
 classifier_train_dir = os.path.join(work_dir.name, "classifier_train")
 os.makedirs(classifier_train_dir)
-
+classifier_fine_tuned_dir = os.path.join(work_dir.name, "classifier_fine_tuned")
+os.makedirs(classifier_fine_tuned_dir)
 input_test_dir = os.path.join(work_dir.name, "input_test")
 os.makedirs(input_test_dir)
 tokenized_test_dir = os.path.join(work_dir.name, "tokenized_test")
@@ -146,7 +150,7 @@ tokenizer = TranscriptomeTokenizer(
 )
 tokenizer.tokenize_data(input_test_dir, tokenized_test_dir, "tokenized", file_format="h5ad")
 
-print('Fine-tune a pre-trained geneformer model for cell state classification', flush=True)
+print(">>> Fine-tuning pre-trained geneformer model for cell state classification...", flush=True)
 cc = Classifier(
   classifier="cell",
   cell_state_dict = {"state_key": "celltype", "states": "all"},
@@ -162,11 +166,7 @@ cc.prepare_data(
   output_prefix="classifier",
 )
 
-import datasets
 train_data = datasets.load_from_disk(classifier_train_dir + "/classifier_labeled.dataset")
-
-classifier_fine_tuned_dir = os.path.join(work_dir.name, "classifier_fine_tuned")
-os.makedirs(classifier_fine_tuned_dir)
 
 cc.train_classifier(
   model_directory=model_dir,
@@ -177,46 +177,31 @@ cc.train_classifier(
   predict=False
 )
 
-print('Generate predictions', flush=True)
+print(">>> Generating predictions...", flush=True)
 
-import pickle
+# dictionary mapping labels from classifier to cell types
 with open(f"{classifier_train_dir}/classifier_id_class_dict.pkl", "rb") as f:
   id_class_dict = pickle.load(f)
 
 with open(dictionary_files["token"], "rb") as f:
   token_dict = pickle.load(f)
 
-from transformers import BertForSequenceClassification, Trainer
+# Load fine-tuned model
 model = BertForSequenceClassification.from_pretrained(classifier_fine_tuned_dir)
 
 test_data = datasets.load_from_disk(tokenized_test_dir + "/tokenized.dataset")
 test_data = test_data.add_column("label", [0] * len(test_data))
 
-# cc_eval = Classifier(
-#   classifier="cell",
-#   cell_state_dict = {"state_key": "celltype", "states": "all"},
-#   nproc=n_processors,
-#   token_dictionary_file=dictionary_files["token"],
-#   num_crossval_splits=1,
-# )
-
-# all_metrics_test = cc_eval.evaluate_model(
-#   model=model,
-#   id_class_dict=id_class_dict,
-#   eval_data=test_data,
-#   num_classes=num_types,
-#   output_directory="classifier_predictions",
-#   output_prefix="predictions",
-# )
-
+# Get predictions
 trainer = Trainer(model=model, data_collator=DataCollatorForCellClassification(token_dictionary=token_dict))
 predictions = trainer.predict(test_data)
 
+# Select the most likely cell type based on the probability vector from the predictions of each cell
 predicted_label_ids = np.argmax(predictions.predictions, axis=1)
 predicted_logits = [predictions.predictions[i][predicted_label_ids[i]] for i in range(len(predicted_label_ids))]
 input_test.obs['label_pred'] = [id_class_dict[p] for p in predicted_label_ids]
 
-print("Write output AnnData to file", flush=True)
+print(">>> Write output AnnData to file", flush=True)
 output = ad.AnnData(
   obs=input_test.obs[["label_pred"]],
   uns={
