@@ -12,8 +12,10 @@ import numpy as np
 from scipy.sparse import issparse
 import torch
 from torchtext.vocab import Vocab
+from torchtext._torchtext import Vocab as VocabPybind
 import scgpt
 from sklearn.model_selection import train_test_split
+import copy
 
 
 ## VIASH START
@@ -21,7 +23,6 @@ par = {
   'input_train': 'resources_test/task_label_projection/cxg_immune_cell_atlas/train.h5ad',
   'input_test': 'resources_test/task_label_projection/cxg_immune_cell_atlas/test.h5ad',
   'output': 'output.h5ad',
-  'model_name': 'scGPT_human',
   'model': 'scGPT_human'
 }
 meta = {
@@ -47,13 +48,10 @@ if input_train.uns["dataset_organism"] != "homo_sapiens":
   )
 
 if par["model"] is None:
-  print(f"\n>>> Downloading '{par['model_name']}' model...", flush=True)
-  model_drive_ids = {
-    "scGPT_human": "1oWh_-ZRdhtoGQ2Fw24HP41FgLoomVo-y",
-    "scGPT_CP": "1_GROJTzXiAV8HB4imruOTk6PEGuNOcgB",
-  }
+  print(f"\n>>> Downloading scGPT model...", flush=True)
+  model_drive_id = {"scGPT_human": "1oWh_-ZRdhtoGQ2Fw24HP41FgLoomVo-y"}
   drive_path = (
-    f"https://drive.google.com/drive/folders/{model_drive_ids[par['model_name']]}"
+    f"https://drive.google.com/drive/folders/{model_drive_id['scGPT_human']}"
   )
   model_temp = tempfile.TemporaryDirectory()
   model_dir = model_temp.name
@@ -231,8 +229,6 @@ num_batch_types = len(set(batch_ids))
   all_counts, celltypes_labels, batch_ids, test_size=0.1, shuffle=True
 )
 
-from torchtext.vocab import Vocab
-from torchtext._torchtext import Vocab as VocabPybind
 if model_dir is None:
   vocab = Vocab(VocabPybind(genes + special_tokens, None))  # bidirectional lookup [gene <-> int]
 vocab.set_default_index(vocab["<pad>"])
@@ -299,20 +295,19 @@ model = scgpt.model.TransformerModel(
   pre_norm=hyperparameters["pre_norm"],
 )
 
-if model_file is not None:
-  # only load params that are in the model and match the size
-  map_location = torch.device('cpu') if device == 'cpu' else None
-  model_dict = model.state_dict()
-  pretrained_dict = torch.load((model_file), map_location=map_location)
-  pretrained_dict = {
-    k: v
-    for k, v in pretrained_dict.items()
-    if k in model_dict and v.shape == model_dict[k].shape
-  }
-  for k, v in pretrained_dict.items():
-    logger.info(f"Loading params {k} with shape {v.shape}")
-  model_dict.update(pretrained_dict)
-  model.load_state_dict(model_dict)
+# only load params that are in the model and match the size
+map_location = torch.device('cpu') if device == 'cpu' else None
+model_dict = model.state_dict()
+pretrained_dict = torch.load((model_file), map_location=map_location)
+pretrained_dict = {
+  k: v
+  for k, v in pretrained_dict.items()
+  if k in model_dict and v.shape == model_dict[k].shape
+}
+for k, v in pretrained_dict.items():
+  logger.info(f"Loading params {k} with shape {v.shape}")
+model_dict.update(pretrained_dict)
+model.load_state_dict(model_dict)
 
 pre_freeze_param_count = sum(dict((p.data_ptr(), p.numel()) for p in model.parameters() if p.requires_grad).values())
 
@@ -343,7 +338,6 @@ best_val_loss = float("inf")
 best_avg_bio = 0.0
 best_model = None
 
-import copy
 for epoch in range(1, hyperparameters["epochs"] + 1):
   epoch_start_time = time.time()
   train_data_pt, valid_data_pt = prepare_data(
