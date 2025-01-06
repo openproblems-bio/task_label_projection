@@ -1,0 +1,46 @@
+__merge__: ../../api/base_method.yaml
+
+name: scimilarity_knn
+label: SCimilarity (kNN)
+summary: SCimilarity provides unifying representation of single cell expression profiles
+description: |
+  SCimilarity is a unifying representation of single cell expression profiles
+  that quantifies similarity between expression states and generalizes to
+  represent new studies without additional training.
+
+  This method trains a kNN classifier using cell embeddings from SCimilarity.
+  The classifier is trained on embeddings for the training data and used to
+  predict labels for the test data. This does not use the SCimilarity cell
+  annotation model but avoids needing to match SCimilarity labels to dataset
+  labels.
+references:
+  doi: 10.1101/2023.07.18.549537
+links:
+  repository: https://github.com/Genentech/scimilarity
+  documentation: https://genentech.github.io/scimilarity/index.html
+
+info:
+  preferred_normalization: counts
+
+arguments:
+  - name: --model
+    type: file
+    description: Path to the directory containing SCimilarity models or a .zip/.tar.gz archive
+    required: true
+
+resources:
+  - type: python_script
+    path: script.py
+
+engines:
+  - type: docker
+    image: openproblems/base_pytorch_nvidia:1.0.0
+    setup:
+      - type: python
+        github: Genentech/scimilarity
+
+runners:
+  - type: executable
+  - type: nextflow
+    directives:
+      label: [midtime, midmem, lowcpu]

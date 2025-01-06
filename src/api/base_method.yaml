@@ -23,5 +23,3 @@ arguments:
 test_resources:
   - type: python_script
     path: /common/component_tests/check_config.py
-  - path: /resources_test/task_label_projection/cxg_immune_cell_atlas
-    dest: resources_test/task_label_projection/cxg_immune_cell_atlas
