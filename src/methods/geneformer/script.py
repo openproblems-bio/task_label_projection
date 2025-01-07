@@ -112,14 +112,14 @@ model_dir = os.path.dirname(model_files["model"])
 
 print(">>> Preparing input data...", flush=True)
 input_train.X = input_train.layers["counts"]
-input_train.var["ensembl_id"] = input_train.var["feature_id"]
+input_train.var["ensembl_id"] = input_train.var_names
 input_train.obs["n_counts"] = input_train.layers["counts"].sum(axis=1)
 input_train.obs["celltype"] = input_train.obs["label"]
 num_types = len(input_train.obs["celltype"].unique())
 input_train.write_h5ad(os.path.join(input_train_dir, "input_train.h5ad"))
 
 input_test.X = input_test.layers["counts"]
-input_test.var["ensembl_id"] = input_test.var["feature_id"]
+input_test.var["ensembl_id"] = input_test.var_names
 input_test.obs["n_counts"] = input_test.layers["counts"].sum(axis=1)
 input_test.write_h5ad(os.path.join(input_test_dir, "input_test.h5ad"))
 
