@@ -1,4 +1,5 @@
 import os
+import sys
 import tarfile
 import zipfile
 import anndata as ad
@@ -37,10 +38,12 @@ input_train = ad.read_h5ad(par['input_train'])
 input_test = ad.read_h5ad(par['input_test'])
 
 if input_train.uns["dataset_organism"] != "homo_sapiens":
-  raise ValueError(
+  print(
     f"scGPT can only be used with human data "
-    f"(dataset_organism is \"{input_train.uns['dataset_organism']}\")"
+    f"(dataset_organism is \"{input_train.uns['dataset_organism']}\")",
+    flush=True
   )
+  sys.exit(99)
 
 if par["model"] is None:
   print(f"\n>>> Downloading '{par['model_name']}' model...", flush=True)

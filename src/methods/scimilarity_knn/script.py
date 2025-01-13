@@ -1,4 +1,5 @@
 import os
+import sys
 import tempfile
 import zipfile
 import tarfile
@@ -27,10 +28,12 @@ input_train = ad.read_h5ad(par['input_train'])
 print(input_train, flush=True)
 
 if input_train.uns["dataset_organism"] != "homo_sapiens":
-    raise ValueError(
+    print(
         f"SCimilarity can only be used with human data "
-        f"(dataset_organism == \"{input_train.uns['dataset_organism']}\")"
+        f"(dataset_organism == \"{input_train.uns['dataset_organism']}\")",
+        flush=True
     )
+    sys.exit(99)
 
 print("\n>>> Reading test data...", flush=True)
 print(f"Test H5AD file: '{par['input_test']}'", flush=True)

@@ -32,7 +32,8 @@ print(input_train, flush=True)
 if input_train.uns["dataset_organism"] != "homo_sapiens":
     print(
         f"SCimilarity can only be used with human data "
-        f"(dataset_organism == \"{input_train.uns['dataset_organism']}\")"
+        f"(dataset_organism == \"{input_train.uns['dataset_organism']}\")",
+        flush=True
     )
     sys.exit(99)
 
