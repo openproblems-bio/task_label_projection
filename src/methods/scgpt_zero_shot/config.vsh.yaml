@@ -29,6 +29,10 @@ arguments:
   - name: --use_faiss
     type: boolean
     description: Whether to use faiss for similarity search
+  - name: --n_hvg
+    type: integer
+    default: 3000
+    description: Number of highly variable genes to use.
 
 resources:
   - type: python_script
