@@ -64,9 +64,13 @@ engines:
       - type: python
         pip:
           - huggingface_hub
-          - scprint
       - type: docker
-        run: lamin init --storage ./main --name main --schema bionty
+        run: |
+          git clone https://github.com/cantinilab/scPRINT && \
+          git clone https://github.com/jkobject/scDataLoader && \
+          pip install -e scPRINT[dev] && \
+          pip install -e scDataLoader[dev] && \
+          lamin init --storage ./main --name main --schema bionty
       - type: python
         script: import bionty as bt; bt.core.sync_all_sources_to_latest()
       - type: docker

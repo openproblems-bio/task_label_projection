@@ -18,7 +18,9 @@ methods = [
   naive_bayes,
   scanvi,
   scanvi_scarches,
-  scgpt_zero_shot,
+  scgpt_zero_shot.run(
+    args: [model: file("s3://openproblems-work/cache/scGPT_human.zip")]
+  ),
   scimilarity.run(
     args: [model: file("s3://openproblems-work/cache/scimilarity-model_v1.1.tar.gz")]
   ),
