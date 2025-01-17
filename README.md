@@ -49,17 +49,17 @@ labels onto the test set.
 ## API
 
 ``` mermaid
-flowchart LR
-  file_common_dataset("Common Dataset")
-  comp_process_dataset[/"Data processor"/]
-  file_solution("Solution")
-  file_test("Test data")
-  file_train("Training data")
-  comp_control_method[/"Control method"/]
-  comp_metric[/"Metric"/]
-  comp_method[/"Method"/]
-  file_prediction("Prediction")
-  file_score("Score")
+flowchart TB
+  file_common_dataset("<a href='https://github.com/openproblems-bio/task_label_projection#file-format-common-dataset'>Common Dataset</a>")
+  comp_process_dataset[/"<a href='https://github.com/openproblems-bio/task_label_projection#component-type-data-processor'>Data processor</a>"/]
+  file_solution("<a href='https://github.com/openproblems-bio/task_label_projection#file-format-solution'>Solution</a>")
+  file_test("<a href='https://github.com/openproblems-bio/task_label_projection#file-format-test-data'>Test data</a>")
+  file_train("<a href='https://github.com/openproblems-bio/task_label_projection#file-format-training-data'>Training data</a>")
+  comp_control_method[/"<a href='https://github.com/openproblems-bio/task_label_projection#component-type-control-method'>Control method</a>"/]
+  comp_metric[/"<a href='https://github.com/openproblems-bio/task_label_projection#component-type-metric'>Metric</a>"/]
+  comp_method[/"<a href='https://github.com/openproblems-bio/task_label_projection#component-type-method'>Method</a>"/]
+  file_prediction("<a href='https://github.com/openproblems-bio/task_label_projection#file-format-prediction'>Prediction</a>")
+  file_score("<a href='https://github.com/openproblems-bio/task_label_projection#file-format-score'>Score</a>")
   file_common_dataset---comp_process_dataset
   comp_process_dataset-->file_solution
   comp_process_dataset-->file_test
@@ -80,7 +80,7 @@ flowchart LR
 
 A subset of the common dataset.
 
-Example file: `resources_test/common/pancreas/dataset.h5ad`
+Example file: `resources_test/common/cxg_immune_cell_atlas/dataset.h5ad`
 
 Format:
 
@@ -88,7 +88,7 @@ Format:
 
     AnnData object
      obs: 'cell_type', 'batch'
-     var: 'hvg', 'hvg_score'
+     var: 'feature_id', 'feature_name', 'hvg', 'hvg_score'
      obsm: 'X_pca'
      layers: 'counts', 'normalized'
      uns: 'dataset_id', 'dataset_name', 'dataset_url', 'dataset_reference', 'dataset_summary', 'dataset_description', 'dataset_organism', 'normalization_id'
@@ -103,6 +103,8 @@ Data structure:
 |:---|:---|:---|
 | `obs["cell_type"]` | `string` | Cell type information. |
 | `obs["batch"]` | `string` | Batch information. |
+| `var["feature_id"]` | `string` | Unique identifier for the feature, usually a ENSEMBL gene id. |
+| `var["feature_name"]` | `string` | A human-readable name for the feature, usually a gene symbol. |
 | `var["hvg"]` | `boolean` | Whether or not the feature is considered to be a ‘highly variable gene’. |
 | `var["hvg_score"]` | `double` | A ranking of the features by hvg. |
 | `obsm["X_pca"]` | `double` | The resulting PCA embedding. |
@@ -141,7 +143,7 @@ Arguments:
 The solution for the test data
 
 Example file:
-`resources_test/task_label_projection/pancreas/solution.h5ad`
+`resources_test/task_label_projection/cxg_immune_cell_atlas/solution.h5ad`
 
 Format:
 
@@ -149,7 +151,7 @@ Format:
 
     AnnData object
      obs: 'label', 'batch'
-     var: 'hvg', 'hvg_score'
+     var: 'feature_id', 'feature_name', 'hvg', 'hvg_score'
      obsm: 'X_pca'
      layers: 'counts', 'normalized'
      uns: 'dataset_id', 'dataset_name', 'dataset_url', 'dataset_reference', 'dataset_summary', 'dataset_description', 'dataset_organism', 'normalization_id'
@@ -164,6 +166,8 @@ Data structure:
 |:---|:---|:---|
 | `obs["label"]` | `string` | Ground truth cell type labels. |
 | `obs["batch"]` | `string` | Batch information. |
+| `var["feature_id"]` | `string` | Unique identifier for the feature, usually a ENSEMBL gene id. |
+| `var["feature_name"]` | `string` | A human-readable name for the feature, usually a gene symbol. |
 | `var["hvg"]` | `boolean` | Whether or not the feature is considered to be a ‘highly variable gene’. |
 | `var["hvg_score"]` | `double` | A ranking of the features by hvg. |
 | `obsm["X_pca"]` | `double` | The resulting PCA embedding. |
@@ -184,7 +188,8 @@ Data structure:
 
 The test data (without labels)
 
-Example file: `resources_test/task_label_projection/pancreas/test.h5ad`
+Example file:
+`resources_test/task_label_projection/cxg_immune_cell_atlas/test.h5ad`
 
 Format:
 
@@ -192,10 +197,10 @@ Format:
 
     AnnData object
      obs: 'batch'
-     var: 'hvg', 'hvg_score'
+     var: 'feature_id', 'feature_name', 'hvg', 'hvg_score'
      obsm: 'X_pca'
      layers: 'counts', 'normalized'
-     uns: 'dataset_id', 'normalization_id'
+     uns: 'dataset_id', 'dataset_organism', 'normalization_id'
 
 </div>
 
@@ -206,12 +211,15 @@ Data structure:
 | Slot | Type | Description |
 |:---|:---|:---|
 | `obs["batch"]` | `string` | Batch information. |
+| `var["feature_id"]` | `string` | Unique identifier for the feature, usually a ENSEMBL gene id. |
+| `var["feature_name"]` | `string` | A human-readable name for the feature, usually a gene symbol. |
 | `var["hvg"]` | `boolean` | Whether or not the feature is considered to be a ‘highly variable gene’. |
 | `var["hvg_score"]` | `double` | A ranking of the features by hvg. |
 | `obsm["X_pca"]` | `double` | The resulting PCA embedding. |
 | `layers["counts"]` | `integer` | Raw counts. |
 | `layers["normalized"]` | `double` | Normalized counts. |
 | `uns["dataset_id"]` | `string` | A unique identifier for the dataset. |
+| `uns["dataset_organism"]` | `string` | (*Optional*) The organism of the sample in the dataset. |
 | `uns["normalization_id"]` | `string` | Which normalization was used. |
 
 </div>
@@ -220,7 +228,8 @@ Data structure:
 
 The training data
 
-Example file: `resources_test/task_label_projection/pancreas/train.h5ad`
+Example file:
+`resources_test/task_label_projection/cxg_immune_cell_atlas/train.h5ad`
 
 Format:
 
@@ -228,10 +237,10 @@ Format:
 
     AnnData object
      obs: 'label', 'batch'
-     var: 'hvg', 'hvg_score'
+     var: 'feature_id', 'feature_name', 'hvg', 'hvg_score'
      obsm: 'X_pca'
      layers: 'counts', 'normalized'
-     uns: 'dataset_id', 'normalization_id'
+     uns: 'dataset_id', 'dataset_organism', 'normalization_id'
 
 </div>
 
@@ -243,12 +252,15 @@ Data structure:
 |:---|:---|:---|
 | `obs["label"]` | `string` | Ground truth cell type labels. |
 | `obs["batch"]` | `string` | Batch information. |
+| `var["feature_id"]` | `string` | Unique identifier for the feature, usually a ENSEMBL gene id. |
+| `var["feature_name"]` | `string` | A human-readable name for the feature, usually a gene symbol. |
 | `var["hvg"]` | `boolean` | Whether or not the feature is considered to be a ‘highly variable gene’. |
 | `var["hvg_score"]` | `double` | A ranking of the features by hvg. |
 | `obsm["X_pca"]` | `double` | The resulting PCA embedding. |
 | `layers["counts"]` | `integer` | Raw counts. |
 | `layers["normalized"]` | `double` | Normalized counts. |
 | `uns["dataset_id"]` | `string` | A unique identifier for the dataset. |
+| `uns["dataset_organism"]` | `string` | (*Optional*) The organism of the sample in the dataset. |
 | `uns["normalization_id"]` | `string` | Which normalization was used. |
 
 </div>
@@ -307,7 +319,7 @@ Arguments:
 The prediction file
 
 Example file:
-`resources_test/task_label_projection/pancreas/prediction.h5ad`
+`resources_test/task_label_projection/cxg_immune_cell_atlas/prediction.h5ad`
 
 Format:
 
@@ -336,7 +348,8 @@ Data structure:
 
 Metric score file
 
-Example file: `resources_test/task_label_projection/pancreas/score.h5ad`
+Example file:
+`resources_test/task_label_projection/cxg_immune_cell_atlas/score.h5ad`
 
 Format:
 

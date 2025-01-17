@@ -1,0 +1,46 @@
+__merge__: ../../api/base_method.yaml
+
+name: geneformer
+label: Geneformer
+summary: Geneformer is a foundational transformer model pretrained on a large-scale corpus of single cell transcriptomes to enable context-aware predictions in settings with limited data in network biology.
+description: |
+  Geneformer is a context-aware, attention-based deep learning model pretrained on a large-scale corpus of single-cell transcriptomes to enable context-specific predictions in settings with limited data in network biology. Here, a pre-trained Geneformer model is fine-tuned and used to predict cell type labels for an unlabelled dataset.
+
+info:
+  preferred_normalization: counts
+
+references: 
+  doi: 
+    - 10.1038/s41586-023-06139-9
+    - 10.1101/2024.08.16.608180
+
+links: 
+  documentation: https://geneformer.readthedocs.io/en/latest/index.html
+  repository: https://huggingface.co/ctheodoris/Geneformer
+
+arguments:
+  - name: "--model"
+    type: "string"
+    description: String representing the Geneformer model to use
+    choices: ["gf-6L-30M-i2048", "gf-12L-30M-i2048", "gf-12L-95M-i4096", "gf-20L-95M-i4096"]
+    default: "gf-12L-95M-i4096"
+
+resources:
+  - type: python_script
+    path: script.py
+
+engines:
+  - type: docker
+    image: openproblems/base_pytorch_nvidia:1.0.0
+    setup:
+      - type: python
+        pip:
+        - pyarrow<15.0.0a0,>=14.0.1
+        - huggingface_hub
+        - git+https://huggingface.co/ctheodoris/Geneformer.git
+
+runners:
+  - type: executable
+  - type: nextflow
+    directives:
+      label: [midtime, highmem, highcpu, midgpu]
