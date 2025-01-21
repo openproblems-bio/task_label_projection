@@ -73,6 +73,8 @@ resources:
   - type: file
     path: /_viash.yaml
   - path: /common/nextflow_helpers/helper.nf
+  - path: /common/nextflow_helpers/benchmarkHelper.nf
+  - path: /common/nextflow_helpers/workflowHelper.nf
 
 dependencies:
   - name: utils/extract_uns_metadata
