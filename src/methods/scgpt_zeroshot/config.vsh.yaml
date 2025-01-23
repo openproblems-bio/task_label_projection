@@ -4,19 +4,19 @@ name: scgpt_zeroshot
 label: scGPT (zero shot)
 summary: "Reference mapping using cell embedding by pretrained scGPT model."
 description: |
-  scGPT is a foundation model for single-cell biology based on a generative pre-trained transformer and trained on a repository of over 33 million cells. Following the zero-shot approach, a pre-trained scGPT model is used to embed cells and map unlabelled cells in a query set to the reference dataset with provided annotations based on a nearest neighbor similarity search. 
+  scGPT is a foundation model for single-cell biology based on a generative pre-trained transformer and trained on a repository of over 33 million cells. Following the zero-shot approach, a pre-trained scGPT model is used to embed cells and map unlabelled cells in a query set to the reference dataset with provided annotations based on a nearest neighbor similarity search.
 
-references: 
+references:
   doi: 10.1038/s41592-024-02201-0
 
-links: 
+links:
   documentation: https://scgpt.readthedocs.io/en/latest/
   repository: https://github.com/bowang-lab/scGPT
 
 info:
   preferred_normalization: counts
 
-arguments: 
+arguments:
   - name: --model_name
     type: string
     description: String giving the name of the scGPT model to use
@@ -47,7 +47,7 @@ engines:
         pypi:
           - gdown
           - scgpt # Install from PyPI to get dependencies
-          - faiss-cpu # TODO: Try installing faiss-gpu 
+          - faiss-cpu # TODO: Try installing faiss-gpu
       - type: docker
         # Force re-installing from GitHub to get bug fixes
         run: |
@@ -57,4 +57,4 @@ runners:
   - type: executable
   - type: nextflow
     directives:
-      label: [midtime, midmem, midcpu, gpu, midsharedmem]
+      label: [hightime, midmem, midcpu, gpu, midsharedmem]

@@ -19,9 +19,9 @@ description: |
     - gene network inference: generate a gene network from any cell or cell
       cluster in your scRNAseq dataset
 
-  This method uses the zero-shot ability of scPRINT for cell type prediction. 
-  As some predicted labels are likely to be different to those in the reference 
-  dataset, we use a combination of exact string matching and iterative linear sum 
+  This method uses the zero-shot ability of scPRINT for cell type prediction.
+  As some predicted labels are likely to be different to those in the reference
+  dataset, we use a combination of exact string matching and iterative linear sum
   assignment to generate a mapping between them using the training data.
 
 references:
@@ -95,4 +95,4 @@ runners:
   - type: executable
   - type: nextflow
     directives:
-      label: [midtime, highmem, midcpu, gpu, midsharedmem]
+      label: [hightime, highmem, midcpu, gpu, highsharedmem]
