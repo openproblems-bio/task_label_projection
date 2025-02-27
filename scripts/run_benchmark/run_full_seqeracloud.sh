@@ -14,14 +14,14 @@ publish_dir="s3://openproblems-data/resources/task_label_projection/results/${RU
 
 # write the parameters to file
 cat > /tmp/params.yaml << HERE
-input_states: s3://openproblems-data/resources/task_label_projection/datasets/**/state.yaml
+input_states: s3://openproblems-data/resources/task_label_projection/datasets/cellxgene_census/**/state.yaml
 rename_keys: 'input_train:output_train;input_test:output_test;input_solution:output_solution'
 output_state: "state.yaml"
 publish_dir: "$publish_dir"
 HERE
 
 tw launch https://github.com/openproblems-bio/task_label_projection.git \
-  --revision build/main \
+  --revision v2.0.0 \
   --pull-latest \
   --main-script target/nextflow/workflows/run_benchmark/main.nf \
   --workspace 53907369739130 \

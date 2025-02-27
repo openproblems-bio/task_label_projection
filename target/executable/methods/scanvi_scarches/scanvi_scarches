@@ -502,9 +502,9 @@ RUN pip install --upgrade pip && \
 RUN pip install -U "jax[cuda12_pip]" -f https://storage.googleapis.com/jax-releases/jax_cuda_releases.html
 
 LABEL org.opencontainers.image.description="Companion container for running component methods scanvi_scarches"
-LABEL org.opencontainers.image.created="2025-02-11T12:58:31Z"
+LABEL org.opencontainers.image.created="2025-02-27T22:40:35Z"
 LABEL org.opencontainers.image.source="https://github.com/scverse/scvi-tools"
-LABEL org.opencontainers.image.revision="1d592b5795139b3cbc3d79cdc9dc6ae220a69b9f"
+LABEL org.opencontainers.image.revision="6abd9d15e41285776acca0a70e127991223da651"
 LABEL org.opencontainers.image.version="build_main"
 
 VIASHDOCKER
