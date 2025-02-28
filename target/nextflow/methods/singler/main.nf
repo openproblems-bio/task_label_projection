@@ -3180,7 +3180,7 @@ meta = [
     "engine" : "docker",
     "output" : "target/nextflow/methods/singler",
     "viash_version" : "0.9.0",
-    "git_commit" : "6abd9d15e41285776acca0a70e127991223da651",
+    "git_commit" : "f4ee35f879b52b9907f8c8336788aaca43b72dfa",
     "git_remote" : "https://github.com/openproblems-bio/task_label_projection"
   },
   "package_config" : {
@@ -3267,6 +3267,16 @@ meta = [
         "info" : {
           "github" : "sainirmayi",
           "orcid" : "0009-0003-6319-9803"
+        }
+      },
+      {
+        "name" : "Jeremie Kalfon",
+        "roles" : [
+          "author"
+        ],
+        "info" : {
+          "github" : "jkobject",
+          "orcid" : "0000-0002-2818-9728"
         }
       }
     ],

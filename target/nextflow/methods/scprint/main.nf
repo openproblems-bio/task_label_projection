@@ -3102,7 +3102,7 @@ meta = [
           "name" : "--max_len",
           "description" : "The maximum length of the gene sequence.",
           "default" : [
-            2000
+            4000
           ],
           "required" : false,
           "direction" : "input",
@@ -3159,7 +3159,7 @@ meta = [
     "test_setup" : {
       "run" : {
         "model_name" : "small",
-        "batch_size" : 64,
+        "batch_size" : 32,
         "max_len" : 100
       }
     },
@@ -3244,9 +3244,7 @@ meta = [
           "type" : "python",
           "user" : false,
           "pip" : [
-            "huggingface_hub",
-            "scprint==1.6.2",
-            "scdataloader==1.6.4"
+            "scprint"
           ],
           "upgrade" : true
         },
@@ -3287,7 +3285,7 @@ meta = [
     "engine" : "docker",
     "output" : "target/nextflow/methods/scprint",
     "viash_version" : "0.9.0",
-    "git_commit" : "6abd9d15e41285776acca0a70e127991223da651",
+    "git_commit" : "f4ee35f879b52b9907f8c8336788aaca43b72dfa",
     "git_remote" : "https://github.com/openproblems-bio/task_label_projection"
   },
   "package_config" : {
@@ -3374,6 +3372,16 @@ meta = [
         "info" : {
           "github" : "sainirmayi",
           "orcid" : "0009-0003-6319-9803"
+        }
+      },
+      {
+        "name" : "Jeremie Kalfon",
+        "roles" : [
+          "author"
+        ],
+        "info" : {
+          "github" : "jkobject",
+          "orcid" : "0000-0002-2818-9728"
         }
       }
     ],
@@ -3473,7 +3481,7 @@ elif input_train.uns["dataset_organism"] == "mus_musculus":
     input_test.obs["organism_ontology_term_id"] = "NCBITaxon:10090"
 else:
     exit_non_applicable(
-        f"scPRINT can only be used with human data "
+        f"scPRINT can only be used with human or mouse data"
         f"(dataset_organism == \\\\"{input_train.uns['dataset_organism']}\\\\")"
     )
 
@@ -3508,6 +3516,18 @@ if model_checkpoint_file is None:
         repo_id="jkobject/scPRINT", filename=f"{par['model_name']}.ckpt"
     )
 
+print("\\\\n>>> Embedding train data...", flush=True)
+if torch.cuda.is_available():
+    print("CUDA is available, using GPU", flush=True)
+    precision = "16"
+    dtype = torch.float16
+    transformer="flash"
+else:
+    print("CUDA is not available, using CPU", flush=True)
+    precision = "32"
+    dtype = torch.float32
+    transformer="normal"
+
 print(f"Model checkpoint file: '{model_checkpoint_file}'", flush=True)
 model = scprint.scPrint.load_from_checkpoint(
     model_checkpoint_file,
@@ -3515,25 +3535,15 @@ model = scprint.scPrint.load_from_checkpoint(
     precpt_gene_emb=None,
 )
 
-print("\\\\n>>> Embedding train data...", flush=True)
-if torch.cuda.is_available():
-    print("CUDA is available, using GPU", flush=True)
-    precision = "16"
-    dtype = torch.float16
-else:
-    print("CUDA is not available, using CPU", flush=True)
-    precision = "32"
-    dtype = torch.float32
+n_cores = min(len(os.sched_getaffinity(0)), 24)
 
-n_cores_available = len(os.sched_getaffinity(0))
-
-print(f"Using {n_cores_available} worker cores")
+print(f"Using {n_cores} worker cores")
 embedder = scprint.tasks.Embedder(
     batch_size=par["batch_size"],
     how="random expr",
     max_len=par["max_len"],
     add_zero_genes=0,
-    num_workers=n_cores_available,
+    num_workers=n_cores,
     doclass=True,
     doplot=False,
     precision=precision,
@@ -3616,7 +3626,7 @@ embedder = scprint.tasks.Embedder(
     how="random expr",
     max_len=par["max_len"],
     add_zero_genes=0,
-    num_workers=n_cores_available,
+    num_workers=n_cores,
     doclass=True,
     doplot=False,
     precision=precision,

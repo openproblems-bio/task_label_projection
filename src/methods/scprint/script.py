@@ -43,7 +43,7 @@ elif input_train.uns["dataset_organism"] == "mus_musculus":
     input_test.obs["organism_ontology_term_id"] = "NCBITaxon:10090"
 else:
     exit_non_applicable(
-        f"scPRINT can only be used with human data "
+        f"scPRINT can only be used with human or mouse data"
         f"(dataset_organism == \"{input_train.uns['dataset_organism']}\")"
     )
 
@@ -78,6 +78,18 @@ if model_checkpoint_file is None:
         repo_id="jkobject/scPRINT", filename=f"{par['model_name']}.ckpt"
     )
 
+print("\n>>> Embedding train data...", flush=True)
+if torch.cuda.is_available():
+    print("CUDA is available, using GPU", flush=True)
+    precision = "16"
+    dtype = torch.float16
+    transformer="flash"
+else:
+    print("CUDA is not available, using CPU", flush=True)
+    precision = "32"
+    dtype = torch.float32
+    transformer="normal"
+
 print(f"Model checkpoint file: '{model_checkpoint_file}'", flush=True)
 model = scprint.scPrint.load_from_checkpoint(
     model_checkpoint_file,
@@ -85,25 +97,15 @@ model = scprint.scPrint.load_from_checkpoint(
     precpt_gene_emb=None,
 )
 
-print("\n>>> Embedding train data...", flush=True)
-if torch.cuda.is_available():
-    print("CUDA is available, using GPU", flush=True)
-    precision = "16"
-    dtype = torch.float16
-else:
-    print("CUDA is not available, using CPU", flush=True)
-    precision = "32"
-    dtype = torch.float32
+n_cores = min(len(os.sched_getaffinity(0)), 24)
 
-n_cores_available = len(os.sched_getaffinity(0))
-
-print(f"Using {n_cores_available} worker cores")
+print(f"Using {n_cores} worker cores")
 embedder = scprint.tasks.Embedder(
     batch_size=par["batch_size"],
     how="random expr",
     max_len=par["max_len"],
     add_zero_genes=0,
-    num_workers=n_cores_available,
+    num_workers=n_cores,
     doclass=True,
     doplot=False,
     precision=precision,
@@ -186,7 +188,7 @@ embedder = scprint.tasks.Embedder(
     how="random expr",
     max_len=par["max_len"],
     add_zero_genes=0,
-    num_workers=n_cores_available,
+    num_workers=n_cores,
     doclass=True,
     doplot=False,
     precision=precision,
