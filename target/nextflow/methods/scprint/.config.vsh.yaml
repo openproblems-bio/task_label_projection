@@ -178,11 +178,11 @@ argument_groups:
     description: "Which model to use. Not used if --model is provided."
     info: null
     default:
-    - "large"
+    - "v2-medium"
     required: false
     choices:
     - "large"
-    - "medium"
+    - "v2-medium"
     - "small"
     direction: "input"
     multiple: false
@@ -202,7 +202,7 @@ argument_groups:
     description: "The size of the batches to be used in the DataLoader."
     info: null
     default:
-    - 64
+    - 32
     required: false
     direction: "input"
     multiple: false
@@ -214,6 +214,20 @@ argument_groups:
     default:
     - 4000
     required: false
+    direction: "input"
+    multiple: false
+    multiple_sep: ";"
+  - type: "string"
+    name: "--infer_matches"
+    description: "The method to use to infer the matches between the predicted and\
+      \ true labels."
+    info: null
+    default:
+    - "linear_sum_assignment"
+    required: false
+    choices:
+    - "direct"
+    - "linear_sum_assignment"
     direction: "input"
     multiple: false
     multiple_sep: ";"
@@ -254,13 +268,13 @@ info:
     scprint_large:
       model_name: "large"
     scprint_medium:
-      model_name: "medium"
+      model_name: "v2-medium"
     scprint_small:
       model_name: "small"
   test_setup:
     run:
       model_name: "small"
-      batch_size: 32
+      batch_size: 16
       max_len: 100
   type: "method"
   type_info:
@@ -324,19 +338,21 @@ engines:
   - type: "python"
     user: false
     pip:
-    - "scprint"
+    - "git+https://github.com/cantinilab/scPRINT.git@d8cc270b099c8d5dacf6913acc26f2b696685b2b"
+    - "gseapy==1.1.2"
+    - "git+https://github.com/jkobject/scDataLoader.git@c67c24a2e5c62399912be39169aae76e29e108aa"
     upgrade: true
   - type: "docker"
     run:
     - "lamin init --storage ./main --name main --schema bionty\n"
+  - type: "docker"
+    run:
+    - "lamin load anonymous/main"
   - type: "python"
     user: false
     script:
     - "import bionty as bt; bt.core.sync_all_sources_to_latest()"
     upgrade: true
-  - type: "docker"
-    run:
-    - "lamin load anonymous/main"
   - type: "python"
     user: false
     script:
@@ -351,7 +367,7 @@ build_info:
   output: "target/nextflow/methods/scprint"
   executable: "target/nextflow/methods/scprint/main.nf"
   viash_version: "0.9.0"
-  git_commit: "f4ee35f879b52b9907f8c8336788aaca43b72dfa"
+  git_commit: "d6a1187338383afa5cb6bad144280b790a8160cb"
   git_remote: "https://github.com/openproblems-bio/task_label_projection"
 package_config:
   name: "task_label_projection"

@@ -482,9 +482,9 @@ RUN pip install --upgrade pip && \
   pip install --upgrade --no-cache-dir "scikit-learn"
 
 LABEL org.opencontainers.image.description="Companion container for running component methods naive_bayes"
-LABEL org.opencontainers.image.created="2025-02-28T07:15:37Z"
+LABEL org.opencontainers.image.created="2025-03-18T09:47:16Z"
 LABEL org.opencontainers.image.source="https://github.com/scikit-learn/scikit-learn"
-LABEL org.opencontainers.image.revision="f4ee35f879b52b9907f8c8336788aaca43b72dfa"
+LABEL org.opencontainers.image.revision="d6a1187338383afa5cb6bad144280b790a8160cb"
 LABEL org.opencontainers.image.version="build_main"
 
 VIASHDOCKER

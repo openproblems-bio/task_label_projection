@@ -1,3 +1,7 @@
+# task_label_projection devel
+
+* Update scPRINT to better handle large datasets, including a new default model (PR #20)
+
 # task_label_projection 2.0.0
 
 A major update to the OpenProblems framework, switching from a Python-based framework to a Viash + Nextflow-based framework. This update features the same concepts as the previous version, but with a new implementation that is more flexible, scalable, and maintainable.
