@@ -12,17 +12,22 @@ links:
   documentation: https://cellmapper.readthedocs.io/en/latest/
   repository: https://github.com/quadbio/cellmapper
 info:
-  preferred_normalization: counts
+  preferred_normalization: log_cp10k
   variants: 
     cellmapper-pca:
-      fallback_representation: joint_pca
+      use_rep: X_pca
     cellmapper-cca:
+      use_rep: None
       fallback_representation: fast_cca
 arguments:
   - name: "--fallback_representation"
     type: "string"
     choices: ["joint_pca", "fast_cca"]
-    default: "joint_pca"
+    default: "fast_cca"
+    description: Fallback representation to use for k-NN mapping (computed if use_rep is None).
+  - name: "--use_rep"
+    type: "string"
+    default: "X_pca"
     description: Data representation to use for k-NN mapping.
   - name: "--kernel_method"
     type: "string"
