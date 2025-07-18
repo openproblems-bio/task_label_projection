@@ -30,6 +30,7 @@ arguments:
     description: Number of neighbors to consider for k-NN graph construction.
   - name: "--num_hvg"
     type: integer
+    default: 2000
     description: "The number of HVG genes to subset to."
   - name: --n_latent
     type: integer
