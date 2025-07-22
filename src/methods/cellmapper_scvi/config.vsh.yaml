@@ -14,10 +14,15 @@ links:
 info:
   preferred_normalization: counts
   variants: 
-    cellmapper_hnoca:
+    cellmapper_hnoca_hvg:
       kernel_method: hnoca
-    cellmapper_gauss:
+      num_hvg: 2000
+    cellmapper_gauss_hvg:
       kernel_method: gauss
+      num_hvg: 2000
+    cellmapper_gauss_all_genes:
+      kernel_method: gauss
+    
 arguments:
   - name: "--kernel_method"
     type: "string"
@@ -30,7 +35,6 @@ arguments:
     description: Number of neighbors to consider for k-NN graph construction.
   - name: "--num_hvg"
     type: integer
-    default: 2000
     description: "The number of HVG genes to subset to."
   - name: --n_latent
     type: integer
