@@ -1,0 +1,440 @@
+name: "cellmapper_scvi"
+namespace: "methods"
+version: "build_main"
+argument_groups:
+- name: "Arguments"
+  arguments:
+  - type: "file"
+    name: "--input_train"
+    label: "Training data"
+    summary: "The training data"
+    info:
+      format:
+        type: "h5ad"
+        layers:
+        - type: "integer"
+          name: "counts"
+          description: "Raw counts"
+          required: true
+        - type: "double"
+          name: "normalized"
+          description: "Normalized counts"
+          required: true
+        obs:
+        - type: "string"
+          name: "label"
+          description: "Ground truth cell type labels"
+          required: true
+        - type: "string"
+          name: "batch"
+          description: "Batch information"
+          required: true
+        var:
+        - type: "string"
+          name: "feature_id"
+          description: "Unique identifier for the feature, usually a ENSEMBL gene\
+            \ id."
+          required: true
+        - type: "string"
+          name: "feature_name"
+          description: "A human-readable name for the feature, usually a gene symbol."
+          required: true
+        - type: "boolean"
+          name: "hvg"
+          description: "Whether or not the feature is considered to be a 'highly variable\
+            \ gene'"
+          required: true
+        - type: "double"
+          name: "hvg_score"
+          description: "A ranking of the features by hvg."
+          required: true
+        obsm:
+        - type: "double"
+          name: "X_pca"
+          description: "The resulting PCA embedding."
+          required: true
+        uns:
+        - type: "string"
+          name: "dataset_id"
+          description: "A unique identifier for the dataset"
+          required: true
+        - name: "dataset_organism"
+          type: "string"
+          description: "The organism of the sample in the dataset."
+          required: true
+        - type: "string"
+          name: "normalization_id"
+          description: "Which normalization was used"
+          required: true
+    example:
+    - "resources_test/task_label_projection/cxg_immune_cell_atlas/train.h5ad"
+    must_exist: true
+    create_parent: true
+    required: true
+    direction: "input"
+    multiple: false
+    multiple_sep: ";"
+  - type: "file"
+    name: "--input_test"
+    label: "Test data"
+    summary: "The test data (without labels)"
+    info:
+      format:
+        type: "h5ad"
+        layers:
+        - type: "integer"
+          name: "counts"
+          description: "Raw counts"
+          required: true
+        - type: "double"
+          name: "normalized"
+          description: "Normalized counts"
+          required: true
+        obs:
+        - type: "string"
+          name: "batch"
+          description: "Batch information"
+          required: true
+        var:
+        - type: "string"
+          name: "feature_id"
+          description: "Unique identifier for the feature, usually a ENSEMBL gene\
+            \ id."
+          required: true
+        - type: "string"
+          name: "feature_name"
+          description: "A human-readable name for the feature, usually a gene symbol."
+          required: true
+        - type: "boolean"
+          name: "hvg"
+          description: "Whether or not the feature is considered to be a 'highly variable\
+            \ gene'"
+          required: true
+        - type: "double"
+          name: "hvg_score"
+          description: "A ranking of the features by hvg."
+          required: true
+        obsm:
+        - type: "double"
+          name: "X_pca"
+          description: "The resulting PCA embedding."
+          required: true
+        uns:
+        - type: "string"
+          name: "dataset_id"
+          description: "A unique identifier for the dataset"
+          required: true
+        - name: "dataset_organism"
+          type: "string"
+          description: "The organism of the sample in the dataset."
+          required: true
+        - type: "string"
+          name: "normalization_id"
+          description: "Which normalization was used"
+          required: true
+    example:
+    - "resources_test/task_label_projection/cxg_immune_cell_atlas/test.h5ad"
+    must_exist: true
+    create_parent: true
+    required: true
+    direction: "input"
+    multiple: false
+    multiple_sep: ";"
+  - type: "file"
+    name: "--output"
+    label: "Prediction"
+    summary: "The prediction file"
+    info:
+      format:
+        type: "h5ad"
+        obs:
+        - type: "string"
+          name: "label_pred"
+          description: "Predicted labels for the test cells."
+          required: true
+        uns:
+        - type: "string"
+          name: "dataset_id"
+          description: "A unique identifier for the dataset"
+          required: true
+        - type: "string"
+          name: "normalization_id"
+          description: "Which normalization was used"
+          required: true
+        - type: "string"
+          name: "method_id"
+          description: "A unique identifier for the method"
+          required: true
+    example:
+    - "resources_test/task_label_projection/cxg_immune_cell_atlas/prediction.h5ad"
+    must_exist: true
+    create_parent: true
+    required: true
+    direction: "output"
+    multiple: false
+    multiple_sep: ";"
+  - type: "string"
+    name: "--kernel_method"
+    description: "Kernel function to compute k-NN edge weights (CellMapper parameter)."
+    info: null
+    default:
+    - "hnoca"
+    required: false
+    choices:
+    - "hnoca"
+    - "gauss"
+    direction: "input"
+    multiple: false
+    multiple_sep: ";"
+  - type: "integer"
+    name: "--n_neighbors"
+    description: "Number of neighbors to consider for k-NN graph construction (CellMapper\
+      \ parameter)."
+    info: null
+    default:
+    - 30
+    required: false
+    direction: "input"
+    multiple: false
+    multiple_sep: ";"
+  - type: "integer"
+    name: "--num_hvg"
+    description: "The number of HVG genes to subset to (Generic analysis parameter). "
+    info: null
+    required: false
+    direction: "input"
+    multiple: false
+    multiple_sep: ";"
+  - type: "integer"
+    name: "--n_latent"
+    description: "Number of latent dimensions (scVI parameter)."
+    info: null
+    default:
+    - 30
+    required: false
+    direction: "input"
+    multiple: false
+    multiple_sep: ";"
+  - type: "integer"
+    name: "--n_hidden"
+    description: "Number of hidden units (scVI parameter)."
+    info: null
+    default:
+    - 128
+    required: false
+    direction: "input"
+    multiple: false
+    multiple_sep: ";"
+  - type: "integer"
+    name: "--n_layers"
+    description: "Number of layers (scVI parameter)."
+    info: null
+    default:
+    - 2
+    required: false
+    direction: "input"
+    multiple: false
+    multiple_sep: ";"
+resources:
+- type: "python_script"
+  path: "script.py"
+  is_executable: true
+label: "CellMapper+scVI"
+summary: "Label projection in an scVI-latent space using CellMapper"
+description: "CellMapper is a general framework for k-NN based mapping tasks in single-cell\
+  \ and spatial genomics.\nThis variant uses CellMapper to project labels from a reference\
+  \ dataset onto a query dataset in an scVI latent space.\n"
+test_resources:
+- type: "python_script"
+  path: "check_config.py"
+  is_executable: true
+- type: "python_script"
+  path: "run_and_check_output.py"
+  is_executable: true
+- type: "file"
+  path: "resources_test/task_label_projection/cxg_immune_cell_atlas"
+  dest: "resources_test/task_label_projection/cxg_immune_cell_atlas"
+info:
+  preferred_normalization: "counts"
+  variants:
+    cellmapper_hnoca_hvg:
+      kernel_method: "hnoca"
+      num_hvg: 2000
+    cellmapper_gauss_hvg:
+      kernel_method: "gauss"
+      num_hvg: 2000
+    cellmapper_gauss_all_genes:
+      kernel_method: "gauss"
+  type: "method"
+  type_info:
+    label: "Method"
+    summary: "A label projection method."
+    description: "A label projection method to predict the labels of a new \"test\"\
+      \ndataset based on an annotated \"training\" dataset.\n"
+status: "enabled"
+repositories:
+- type: "github"
+  name: "openproblems"
+  repo: "openproblems-bio/openproblems"
+  tag: "build/main"
+license: "MIT"
+references:
+  doi:
+  - "10.5281/zenodo.15683594"
+links:
+  repository: "https://github.com/quadbio/cellmapper"
+  docker_registry: "ghcr.io"
+  documentation: "https://cellmapper.readthedocs.io/en/latest/"
+runners:
+- type: "executable"
+  id: "executable"
+  docker_setup_strategy: "ifneedbepullelsecachedbuild"
+- type: "nextflow"
+  id: "nextflow"
+  directives:
+    label:
+    - "midtime"
+    - "midmem"
+    - "midcpu"
+    - "gpu"
+    tag: "$id"
+  auto:
+    simplifyInput: true
+    simplifyOutput: false
+    transcript: false
+    publish: false
+  config:
+    labels:
+      lowmem: "memory = 20.Gb"
+      midmem: "memory = 50.Gb"
+      highmem: "memory = 100.Gb"
+      lowcpu: "cpus = 5"
+      midcpu: "cpus = 15"
+      highcpu: "cpus = 30"
+      lowtime: "time = 1.h"
+      midtime: "time = 4.h"
+      hightime: "time = 8.h"
+      veryhightime: "time = 24.h"
+  debug: false
+  container: "docker"
+engines:
+- type: "docker"
+  id: "docker"
+  image: "openproblems/base_pytorch_nvidia:1.0.0"
+  namespace_separator: "/"
+  setup:
+  - type: "python"
+    user: false
+    packages:
+    - "cellmapper>=0.2.1"
+    - "scvi-tools>=1.3.0"
+    upgrade: true
+  entrypoint: []
+  cmd: null
+build_info:
+  config: "src/methods/cellmapper_scvi/config.vsh.yaml"
+  runner: "nextflow"
+  engine: "docker"
+  output: "target/nextflow/methods/cellmapper_scvi"
+  executable: "target/nextflow/methods/cellmapper_scvi/main.nf"
+  viash_version: "0.9.0"
+  git_commit: "9024c56b3927f2798903c045e367ea51369457f9"
+  git_remote: "https://github.com/openproblems-bio/task_label_projection"
+package_config:
+  name: "task_label_projection"
+  version: "build_main"
+  label: "Label projection"
+  summary: "Automated cell type annotation from rich, labeled reference data"
+  description: "A major challenge for integrating single cell datasets is creating\
+    \ matching\ncell type annotations for each cell. One of the most common strategies\
+    \ for\nannotating cell types is referred to as\n[\"cluster-then-annotate\"](https://www.nature.com/articles/s41576-018-0088-9)\n\
+    whereby cells are aggregated into clusters based on feature similarity and\nthen\
+    \ manually characterized based on differential gene expression or previously\n\
+    identified marker genes. Recently, methods have emerged to build on this\nstrategy\
+    \ and annotate cells using\n[known marker genes](https://www.nature.com/articles/s41592-019-0535-3).\n\
+    However, these strategies pose a difficulty for integrating atlas-scale\ndatasets\
+    \ as the particular annotations may not match.\n\nTo ensure that the cell type\
+    \ labels in newly generated datasets match\nexisting reference datasets, some\
+    \ methods align cells to a previously\nannotated [reference dataset](https://academic.oup.com/bioinformatics/article/35/22/4688/54802990)\n\
+    and then _project_ labels from the reference to the new dataset.\n\nHere, we compare\
+    \ methods for annotation based on a reference dataset.\nThe datasets consist of\
+    \ two or more samples of single cell profiles that\nhave been manually annotated\
+    \ with matching labels. These datasets are then\nsplit into training and test\
+    \ batches, and the task of each method is to\ntrain a cell type classifer on the\
+    \ training set and project those labels\nonto the test set.\n"
+  info:
+    image: "thumbnail.svg"
+    test_resources:
+    - type: "s3"
+      path: "s3://openproblems-data/resources_test/common/cxg_immune_cell_atlas/"
+      dest: "resources_test/common/cxg_immune_cell_atlas"
+    - type: "s3"
+      path: "s3://openproblems-data/resources_test/task_label_projection/"
+      dest: "resources_test/task_label_projection"
+  repositories:
+  - type: "github"
+    name: "openproblems"
+    repo: "openproblems-bio/openproblems"
+    tag: "build/main"
+  viash_version: "0.9.0"
+  source: "src"
+  target: "target"
+  config_mods:
+  - ".runners[.type == \"nextflow\"].config.labels := { lowmem : \"memory = 20.Gb\"\
+    , midmem : \"memory = 50.Gb\", highmem : \"memory = 100.Gb\", lowcpu : \"cpus\
+    \ = 5\", midcpu : \"cpus = 15\", highcpu : \"cpus = 30\", lowtime : \"time = 1.h\"\
+    , midtime : \"time = 4.h\", hightime : \"time = 8.h\", veryhightime : \"time =\
+    \ 24.h\" }\n"
+  authors:
+  - name: "Nikolay Markov"
+    roles:
+    - "author"
+    - "maintainer"
+    info:
+      github: "mxposed"
+  - name: "Scott Gigante"
+    roles:
+    - "author"
+    info:
+      github: "scottgigante"
+      orcid: "0000-0002-4544-2764"
+  - name: "Robrecht Cannoodt"
+    roles:
+    - "author"
+    info:
+      github: "rcannood"
+      orcid: "0000-0003-3641-729X"
+  - name: "Luke Zappia"
+    roles:
+    - "author"
+    info:
+      github: "lazappi"
+      orcid: "0000-0001-7744-8565"
+  - name: "Sai Nirmayi Yasa"
+    roles:
+    - "author"
+    info:
+      github: "sainirmayi"
+      orcid: "0009-0003-6319-9803"
+  - name: "Jeremie Kalfon"
+    roles:
+    - "author"
+    info:
+      github: "jkobject"
+      orcid: "0000-0002-2818-9728"
+  - name: "Marius Lange"
+    roles:
+    - "contributor"
+    info:
+      github: "marius1311"
+      orcid: "0000-0002-4846-1266"
+  keywords:
+  - "single-cell"
+  - "label projection"
+  - "cell type annotation"
+  license: "MIT"
+  organization: "openproblems-bio"
+  links:
+    repository: "https://github.com/openproblems-bio/task_label_projection"
+    docker_registry: "ghcr.io"
+    issue_tracker: "https://github.com/openproblems-bio/task_label_projection/issues"

@@ -3380,6 +3380,18 @@ meta = [
       }
     },
     {
+      "name" : "methods/cellmapper_linear",
+      "repository" : {
+        "type" : "local"
+      }
+    },
+    {
+      "name" : "methods/cellmapper_scvi",
+      "repository" : {
+        "type" : "local"
+      }
+    },
+    {
       "name" : "metrics/accuracy",
       "repository" : {
         "type" : "local"
@@ -3448,7 +3460,7 @@ meta = [
     "engine" : "native",
     "output" : "target/nextflow/workflows/run_benchmark",
     "viash_version" : "0.9.0",
-    "git_commit" : "d6a1187338383afa5cb6bad144280b790a8160cb",
+    "git_commit" : "9024c56b3927f2798903c045e367ea51369457f9",
     "git_remote" : "https://github.com/openproblems-bio/task_label_projection"
   },
   "package_config" : {
@@ -3546,6 +3558,16 @@ meta = [
           "github" : "jkobject",
           "orcid" : "0000-0002-2818-9728"
         }
+      },
+      {
+        "name" : "Marius Lange",
+        "roles" : [
+          "contributor"
+        ],
+        "info" : {
+          "github" : "marius1311",
+          "orcid" : "0000-0002-4846-1266"
+        }
       }
     ],
     "keywords" : [
@@ -3586,6 +3608,8 @@ include { seurat_transferdata } from "${meta.resources_dir}/../../../nextflow/me
 include { singler } from "${meta.resources_dir}/../../../nextflow/methods/singler/main.nf"
 include { xgboost } from "${meta.resources_dir}/../../../nextflow/methods/xgboost/main.nf"
 include { uce } from "${meta.resources_dir}/../../../nextflow/methods/uce/main.nf"
+include { cellmapper_linear } from "${meta.resources_dir}/../../../nextflow/methods/cellmapper_linear/main.nf"
+include { cellmapper_scvi } from "${meta.resources_dir}/../../../nextflow/methods/cellmapper_scvi/main.nf"
 include { accuracy } from "${meta.resources_dir}/../../../nextflow/metrics/accuracy/main.nf"
 include { f1 } from "${meta.resources_dir}/../../../nextflow/metrics/f1/main.nf"
 
@@ -3611,6 +3635,8 @@ methods = [
   naive_bayes,
   scanvi,
   scanvi_scarches,
+  cellmapper_linear,
+  cellmapper_scvi,
 
   scgpt_finetuned.run(
     args: [model: file("s3://openproblems-work/cache/scGPT_human.zip")]

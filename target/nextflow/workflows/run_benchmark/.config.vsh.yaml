@@ -387,6 +387,12 @@ dependencies:
 - name: "methods/uce"
   repository:
     type: "local"
+- name: "methods/cellmapper_linear"
+  repository:
+    type: "local"
+- name: "methods/cellmapper_scvi"
+  repository:
+    type: "local"
 - name: "metrics/accuracy"
   repository:
     type: "local"
@@ -433,7 +439,7 @@ build_info:
   output: "target/nextflow/workflows/run_benchmark"
   executable: "target/nextflow/workflows/run_benchmark/main.nf"
   viash_version: "0.9.0"
-  git_commit: "d6a1187338383afa5cb6bad144280b790a8160cb"
+  git_commit: "9024c56b3927f2798903c045e367ea51369457f9"
   git_remote: "https://github.com/openproblems-bio/task_label_projection"
   dependencies:
   - "target/dependencies/github/openproblems-bio/openproblems/build/main/nextflow/utils/extract_uns_metadata"
@@ -456,6 +462,8 @@ build_info:
   - "target/nextflow/methods/singler"
   - "target/nextflow/methods/xgboost"
   - "target/nextflow/methods/uce"
+  - "target/nextflow/methods/cellmapper_linear"
+  - "target/nextflow/methods/cellmapper_scvi"
   - "target/nextflow/metrics/accuracy"
   - "target/nextflow/metrics/f1"
 package_config:
@@ -540,6 +548,12 @@ package_config:
     info:
       github: "jkobject"
       orcid: "0000-0002-2818-9728"
+  - name: "Marius Lange"
+    roles:
+    - "contributor"
+    info:
+      github: "marius1311"
+      orcid: "0000-0002-4846-1266"
   keywords:
   - "single-cell"
   - "label projection"

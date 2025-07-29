@@ -3186,7 +3186,7 @@ meta = [
     "engine" : "docker",
     "output" : "target/nextflow/methods/seurat_transferdata",
     "viash_version" : "0.9.0",
-    "git_commit" : "d6a1187338383afa5cb6bad144280b790a8160cb",
+    "git_commit" : "9024c56b3927f2798903c045e367ea51369457f9",
     "git_remote" : "https://github.com/openproblems-bio/task_label_projection"
   },
   "package_config" : {
@@ -3283,6 +3283,16 @@ meta = [
         "info" : {
           "github" : "jkobject",
           "orcid" : "0000-0002-2818-9728"
+        }
+      },
+      {
+        "name" : "Marius Lange",
+        "roles" : [
+          "contributor"
+        ],
+        "info" : {
+          "github" : "marius1311",
+          "orcid" : "0000-0002-4846-1266"
         }
       }
     ],

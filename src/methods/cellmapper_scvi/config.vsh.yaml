@@ -1,0 +1,67 @@
+__merge__: ../../api/comp_method.yaml
+name: cellmapper_scvi
+label: CellMapper+scVI
+summary: "Label projection in an scVI-latent space using CellMapper"
+description: |
+  CellMapper is a general framework for k-NN based mapping tasks in single-cell and spatial genomics.
+  This variant uses CellMapper to project labels from a reference dataset onto a query dataset in an scVI latent space.
+references:
+  doi: 
+    - 10.5281/zenodo.15683594
+links:
+  documentation: https://cellmapper.readthedocs.io/en/latest/
+  repository: https://github.com/quadbio/cellmapper
+info:
+  preferred_normalization: counts
+  variants: 
+    cellmapper_hnoca_hvg:
+      kernel_method: hnoca
+      num_hvg: 2000
+    cellmapper_gauss_hvg:
+      kernel_method: gauss
+      num_hvg: 2000
+    cellmapper_gauss_all_genes:
+      kernel_method: gauss
+    
+arguments:
+  - name: "--kernel_method"
+    type: "string"
+    choices: ["hnoca", "gauss"]
+    default: "hnoca"
+    description: Kernel function to compute k-NN edge weights (CellMapper parameter). 
+  - name: "--n_neighbors"
+    type: "integer"
+    default: 30
+    description: Number of neighbors to consider for k-NN graph construction (CellMapper parameter).
+  - name: "--num_hvg"
+    type: integer
+    description: "The number of HVG genes to subset to (Generic analysis parameter). "
+  - name: "--n_latent"
+    type: integer
+    default: 30
+    description: Number of latent dimensions (scVI parameter).
+  - name: "--n_hidden"
+    type: integer
+    default: 128
+    description: Number of hidden units (scVI parameter).
+  - name: "--n_layers"
+    type: integer
+    default: 2
+    description: Number of layers (scVI parameter).
+resources:
+  - type: python_script
+    path: script.py
+engines:
+  - type: docker
+    image: openproblems/base_pytorch_nvidia:1.0.0
+    setup:
+      - type: python
+        packages: 
+          - cellmapper>=0.2.1
+          - scvi-tools>=1.3.0
+
+runners:
+  - type: executable
+  - type: nextflow
+    directives:
+      label: [midtime,midmem,midcpu,gpu]

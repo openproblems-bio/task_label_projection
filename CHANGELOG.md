@@ -1,5 +1,6 @@
 # task_label_projection devel
 
+* Add new method: CellMapper, which is a k-NN based approach to map cells across representations and can be used for label projection. Two versions are included here, one based on PCA or CCA embeddings (`linear`) and one based on an scvi embedding (`scvi`)  (PR #22)
 * Update scPRINT to better handle large datasets, including a new default model (PR #20)
 
 # task_label_projection 2.0.0
