@@ -1,8 +1,22 @@
 # task_label_projection devel
 
+## NEW FUNCTIONALITY
+
 * Add new method: CellMapper, which is a k-NN based approach to map cells across representations and can be used for label projection. Two versions are included here, one based on PCA or CCA embeddings (`linear`) and one based on an scvi embedding (`scvi`)  (PR #22)
+
+## MAJOR CHANGES
+
+* Update the image version from :1.0.0 to :1 for `openproblems/base_*` images (PR #21).
+
+## MINOR CHANGES
+
 * Update scPRINT to better handle large datasets, including a new default model (PR #20)
 * Update Viash version to v0.9.4 (PR #23)
+
+* Update Geneformer for new model versions (PR #24)
+
+* Update scPRINT to use latest stable version (2.3.5) with compatible dependencies and fixed installation method (PR #25)
+
 
 # task_label_projection 2.0.0
 
