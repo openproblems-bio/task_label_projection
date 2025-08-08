@@ -8,7 +8,10 @@
 
 * Update scPRINT to better handle large datasets, including a new default model (PR #20)
 
-* Update Geneformer for new model versions (PR #xxx)
+* Update Geneformer for new model versions (PR #24)
+
+* Update scPRINT to use latest stable version (2.3.5) with compatible dependencies and fixed installation method (PR #25)
+
 
 # task_label_projection 2.0.0
 

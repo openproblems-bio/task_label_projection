@@ -332,22 +332,18 @@ runners:
 engines:
 - type: "docker"
   id: "docker"
-  image: "openproblems/base_pytorch_nvidia:1.0.0"
+  image: "openproblems/base_pytorch_nvidia:1"
   namespace_separator: "/"
   setup:
   - type: "python"
     user: false
     pip:
-    - "git+https://github.com/cantinilab/scPRINT.git@d8cc270b099c8d5dacf6913acc26f2b696685b2b"
-    - "gseapy==1.1.2"
-    - "git+https://github.com/jkobject/scDataLoader.git@c67c24a2e5c62399912be39169aae76e29e108aa"
+    - "scprint>=2.3.0"
+    - "gseapy>=1.1.8"
     upgrade: true
   - type: "docker"
     run:
-    - "lamin init --storage ./main --name main --schema bionty\n"
-  - type: "docker"
-    run:
-    - "lamin load anonymous/main"
+    - "lamin init --storage ./main --name main --schema bionty && \\\nlamin load anonymous/main\n"
   - type: "python"
     user: false
     script:
@@ -367,7 +363,7 @@ build_info:
   output: "target/executable/methods/scprint"
   executable: "target/executable/methods/scprint/scprint"
   viash_version: "0.9.0"
-  git_commit: "2a671ac3af52c4775d620e85cb8b4e16a4bfb279"
+  git_commit: "67f290d1c283d95441102a5f629f0c5c708d5aa1"
   git_remote: "https://github.com/openproblems-bio/task_label_projection"
 package_config:
   name: "task_label_projection"
