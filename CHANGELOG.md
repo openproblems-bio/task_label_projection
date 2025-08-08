@@ -16,7 +16,7 @@
 
 * Update scPRINT to use latest stable version (2.3.5) with compatible dependencies and fixed installation method (PR #25)
 
-* Update Viash version to 0.9.4 (PR #23)
+* Update Viash version to v0.9.4 (PR #23)
 
 # task_label_projection 2.0.0
 
