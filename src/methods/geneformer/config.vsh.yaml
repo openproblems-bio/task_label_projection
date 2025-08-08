@@ -11,6 +11,7 @@ info:
   test_setup:
     # override the default training parameters for quicker unit testing
     run:
+      model: "Geneformer-V2-104M"
       num_train_epochs: 1
       warmup_steps: 1
       max_trials: 1
@@ -29,11 +30,10 @@ arguments:
     type: string
     description: String representing the Geneformer model to use
     choices:
-      - gf-6L-30M-i2048
-      - gf-12L-30M-i2048
-      - gf-12L-95M-i4096
-      - gf-20L-95M-i4096
-    default: "gf-12L-95M-i4096"
+      - Geneformer-V1-10M
+      - Geneformer-V2-104M
+      - Geneformer-V2-316M
+    default: "Geneformer-V2-316M"
   # training parameters
   - name: --num_train_epochs
     type: integer
@@ -52,7 +52,7 @@ resources:
 
 engines:
   - type: docker
-    image: openproblems/base_pytorch_nvidia:1.0.0
+    image: openproblems/base_pytorch_nvidia:1
     setup:
       - type: python
         pip:

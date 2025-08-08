@@ -18,7 +18,7 @@ par = {
     "input_train": "resources_test/task_label_projection/cxg_immune_cell_atlas/train.h5ad",
     "input_test": "resources_test/task_label_projection/cxg_immune_cell_atlas/test.h5ad",
     "output": "output.h5ad",
-    "model": "gf-12L-95M-i4096",
+    "model": "Geneformer-V2-316M",
 }
 meta = {"name": "geneformer"}
 ## VIASH END
@@ -48,43 +48,61 @@ if not is_ensembl:
     )
 
 print(f">>> Getting settings for model '{par['model']}'...", flush=True)
-model_split = par["model"].split("-")
-model_details = {
-    "layers": model_split[1],
-    "dataset": model_split[2],
-    "input_size": int(model_split[3][1:]),
-}
+
+# Parse model details based on new V2 naming scheme
+if par["model"] == "Geneformer-V1-10M":
+    model_details = {
+        "dataset": "30M",
+        "input_size": 2048,
+        "version": "V1"
+    }
+    dictionaries_subfolder = "geneformer/gene_dictionaries_30m"
+    model_dataset_suffix = "30M"
+elif par["model"] == "Geneformer-V2-104M":
+    model_details = {
+        "dataset": "104M", 
+        "input_size": 4096,
+        "version": "V2"
+    }
+    dictionaries_subfolder = "geneformer"
+    model_dataset_suffix = "104M"
+elif par["model"] == "Geneformer-V2-316M":
+    # Note: V2 models use 104M dictionaries even for 316M model
+    model_details = {
+        "dataset": "104M",
+        "input_size": 4096,
+        "version": "V2"
+    }
+    dictionaries_subfolder = "geneformer" 
+    model_dataset_suffix = "104M"
+else:
+    raise ValueError(f"Invalid model: {par['model']}")
+
 print(model_details, flush=True)
 
 print(">>> Getting model dictionary files...", flush=True)
-if model_details["dataset"] == "95M":
-    dictionaries_subfolder = "geneformer"
-elif model_details["dataset"] == "30M":
-    dictionaries_subfolder = "geneformer/gene_dictionaries_30m"
-else:
-    raise ValueError(f"Invalid model dataset: {model_details['dataset']}")
 print(f"Dictionaries subfolder: '{dictionaries_subfolder}'")
 
 dictionary_files = {
     "ensembl_mapping": hf_hub_download(
         repo_id="ctheodoris/Geneformer",
         subfolder=dictionaries_subfolder,
-        filename=f"ensembl_mapping_dict_gc{model_details['dataset']}.pkl",
+        filename=f"ensembl_mapping_dict_gc{model_dataset_suffix}.pkl",
     ),
     "gene_median": hf_hub_download(
         repo_id="ctheodoris/Geneformer",
         subfolder=dictionaries_subfolder,
-        filename=f"gene_median_dictionary_gc{model_details['dataset']}.pkl",
+        filename=f"gene_median_dictionary_gc{model_dataset_suffix}.pkl",
     ),
     "gene_name_id": hf_hub_download(
         repo_id="ctheodoris/Geneformer",
         subfolder=dictionaries_subfolder,
-        filename=f"gene_name_id_dict_gc{model_details['dataset']}.pkl",
+        filename=f"gene_name_id_dict_gc{model_dataset_suffix}.pkl",
     ),
     "token": hf_hub_download(
         repo_id="ctheodoris/Geneformer",
         subfolder=dictionaries_subfolder,
-        filename=f"token_dictionary_gc{model_details['dataset']}.pkl",
+        filename=f"token_dictionary_gc{model_dataset_suffix}.pkl",
     ),
 }
 
@@ -147,7 +165,7 @@ def tryParallelFunction(fun, label):
             raise e
 
 print(">>> Tokenizing train data...", flush=True)
-special_token = model_details["dataset"] == "95M"
+special_token = model_details["version"] == "V2"
 print(f"Input size: {model_details['input_size']}, Special token: {special_token}")
 
 def tokenize_train(nproc):
@@ -169,7 +187,7 @@ def tokenize_train(nproc):
 tokenizer = tryParallelFunction(tokenize_train, "Tokenizing train data")
 
 print(">>> Tokenizing test data...", flush=True)
-special_token = model_details["dataset"] == "95M"
+special_token = model_details["version"] == "V2"
 print(f"Input size: {model_details['input_size']}, Special token: {special_token}")
 
 def tokenize_test(nproc):
