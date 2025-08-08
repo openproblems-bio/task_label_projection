@@ -197,9 +197,8 @@ function ViashHelp {
   echo ""
   echo "    --model"
   echo "        type: string"
-  echo "        default: gf-12L-95M-i4096"
-  echo "        choices: [ gf-6L-30M-i2048, gf-12L-30M-i2048, gf-12L-95M-i4096,"
-  echo "gf-20L-95M-i4096 ]"
+  echo "        default: Geneformer-V2-316M"
+  echo "        choices: [ Geneformer-V1-10M, Geneformer-V2-104M, Geneformer-V2-316M ]"
   echo "        String representing the Geneformer model to use"
   echo ""
   echo "    --num_train_epochs"
@@ -488,15 +487,15 @@ function ViashDockerfile {
 
   if [[ "$engine_id" == "docker" ]]; then
     cat << 'VIASHDOCKER'
-FROM openproblems/base_pytorch_nvidia:1.0.0
+FROM openproblems/base_pytorch_nvidia:1
 ENTRYPOINT []
 RUN pip install --upgrade pip && \
   pip install --upgrade --no-cache-dir "pyarrow<15.0.0a0,>=14.0.1" "huggingface_hub" "git+https://huggingface.co/ctheodoris/Geneformer.git"
 
 LABEL org.opencontainers.image.description="Companion container for running component methods geneformer"
-LABEL org.opencontainers.image.created="2025-07-29T13:52:38Z"
+LABEL org.opencontainers.image.created="2025-08-08T12:50:27Z"
 LABEL org.opencontainers.image.source="https://huggingface.co/ctheodoris/Geneformer"
-LABEL org.opencontainers.image.revision="9024c56b3927f2798903c045e367ea51369457f9"
+LABEL org.opencontainers.image.revision="2a671ac3af52c4775d620e85cb8b4e16a4bfb279"
 LABEL org.opencontainers.image.version="build_main"
 
 VIASHDOCKER
@@ -922,7 +921,7 @@ fi
 
 # filling in defaults
 if [ -z ${VIASH_PAR_MODEL+x} ]; then
-  VIASH_PAR_MODEL="gf-12L-95M-i4096"
+  VIASH_PAR_MODEL="Geneformer-V2-316M"
 fi
 
 # check whether required files exist
@@ -1029,7 +1028,7 @@ fi
 
 # check whether value is belongs to a set of choices
 if [ ! -z "$VIASH_PAR_MODEL" ]; then
-  VIASH_PAR_MODEL_CHOICES=("gf-6L-30M-i2048;gf-12L-30M-i2048;gf-12L-95M-i4096;gf-20L-95M-i4096")
+  VIASH_PAR_MODEL_CHOICES=("Geneformer-V1-10M;Geneformer-V2-104M;Geneformer-V2-316M")
   IFS=';'
   set -f
   if ! [[ ";${VIASH_PAR_MODEL_CHOICES[*]};" =~ ";$VIASH_PAR_MODEL;" ]]; then
@@ -1205,43 +1204,61 @@ if not is_ensembl:
     )
 
 print(f">>> Getting settings for model '{par['model']}'...", flush=True)
-model_split = par["model"].split("-")
-model_details = {
-    "layers": model_split[1],
-    "dataset": model_split[2],
-    "input_size": int(model_split[3][1:]),
-}
+
+# Parse model details based on new V2 naming scheme
+if par["model"] == "Geneformer-V1-10M":
+    model_details = {
+        "dataset": "30M",
+        "input_size": 2048,
+        "version": "V1"
+    }
+    dictionaries_subfolder = "geneformer/gene_dictionaries_30m"
+    model_dataset_suffix = "30M"
+elif par["model"] == "Geneformer-V2-104M":
+    model_details = {
+        "dataset": "104M", 
+        "input_size": 4096,
+        "version": "V2"
+    }
+    dictionaries_subfolder = "geneformer"
+    model_dataset_suffix = "104M"
+elif par["model"] == "Geneformer-V2-316M":
+    # Note: V2 models use 104M dictionaries even for 316M model
+    model_details = {
+        "dataset": "104M",
+        "input_size": 4096,
+        "version": "V2"
+    }
+    dictionaries_subfolder = "geneformer" 
+    model_dataset_suffix = "104M"
+else:
+    raise ValueError(f"Invalid model: {par['model']}")
+
 print(model_details, flush=True)
 
 print(">>> Getting model dictionary files...", flush=True)
-if model_details["dataset"] == "95M":
-    dictionaries_subfolder = "geneformer"
-elif model_details["dataset"] == "30M":
-    dictionaries_subfolder = "geneformer/gene_dictionaries_30m"
-else:
-    raise ValueError(f"Invalid model dataset: {model_details['dataset']}")
 print(f"Dictionaries subfolder: '{dictionaries_subfolder}'")
 
 dictionary_files = {
     "ensembl_mapping": hf_hub_download(
         repo_id="ctheodoris/Geneformer",
         subfolder=dictionaries_subfolder,
-        filename=f"ensembl_mapping_dict_gc{model_details['dataset']}.pkl",
+        filename=f"ensembl_mapping_dict_gc{model_dataset_suffix}.pkl",
     ),
     "gene_median": hf_hub_download(
         repo_id="ctheodoris/Geneformer",
         subfolder=dictionaries_subfolder,
-        filename=f"gene_median_dictionary_gc{model_details['dataset']}.pkl",
+        filename=f"gene_median_dictionary_gc{model_dataset_suffix}.pkl",
     ),
     "gene_name_id": hf_hub_download(
         repo_id="ctheodoris/Geneformer",
         subfolder=dictionaries_subfolder,
-        filename=f"gene_name_id_dict_gc{model_details['dataset']}.pkl",
+        filename=f"gene_name_id_dict_gc{model_dataset_suffix}.pkl",
     ),
     "token": hf_hub_download(
         repo_id="ctheodoris/Geneformer",
         subfolder=dictionaries_subfolder,
-        filename=f"token_dictionary_gc{model_details['dataset']}.pkl",
+        filename=f"token_dictionary_gc{model_dataset_suffix}.pkl",
     ),
 }
 
@@ -1304,7 +1321,7 @@ def tryParallelFunction(fun, label):
             raise e
 
 print(">>> Tokenizing train data...", flush=True)
-special_token = model_details["dataset"] == "95M"
+special_token = model_details["version"] == "V2"
 print(f"Input size: {model_details['input_size']}, Special token: {special_token}")
 
 def tokenize_train(nproc):
@@ -1326,7 +1343,7 @@ def tokenize_train(nproc):
 tokenizer = tryParallelFunction(tokenize_train, "Tokenizing train data")
 
 print(">>> Tokenizing test data...", flush=True)
-special_token = model_details["dataset"] == "95M"
+special_token = model_details["version"] == "V2"
 print(f"Input size: {model_details['input_size']}, Special token: {special_token}")
 
 def tokenize_test(nproc):
