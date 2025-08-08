@@ -1,0 +1,55 @@
+__merge__: ../../api/comp_method.yaml
+name: cellmapper_linear
+label: CellMapper+PCA/CCA
+summary: "Label projection in a PCA/CCA space using CellMapper"
+description: |
+  CellMapper is a general framework for k-NN based mapping tasks in single-cell and spatial genomics.
+  This variant uses CellMapper to project labels from a reference dataset onto a query dataset in a PCA/CCA latent space.
+references:
+  doi: 
+    - 10.5281/zenodo.15683594
+links:
+  documentation: https://cellmapper.readthedocs.io/en/latest/
+  repository: https://github.com/quadbio/cellmapper
+info:
+  preferred_normalization: log_cp10k
+  variants: 
+    cellmapper-pca:
+      use_rep: X_pca
+    cellmapper-cca:
+      use_rep: None
+      fallback_representation: fast_cca
+arguments:
+  - name: "--fallback_representation"
+    type: "string"
+    choices: ["joint_pca", "fast_cca"]
+    default: "fast_cca"
+    description: Fallback representation to use for k-NN mapping (computed if use_rep is None).
+  - name: "--use_rep"
+    type: "string"
+    default: "X_pca"
+    description: Data representation to use for k-NN mapping.
+  - name: "--kernel_method"
+    type: "string"
+    choices: ["hnoca", "gauss"]
+    default: "hnoca"
+    description: Kernel function to compute k-NN edge weights. 
+  - name: "--n_neighbors"
+    type: "integer"
+    default: 30
+    description: Number of neighbors to consider for k-NN graph construction.
+resources:
+  - type: python_script
+    path: script.py
+engines:
+  - type: docker
+    image: openproblems/base_python:1
+    setup:
+      - type: python
+        packages: 
+          - cellmapper>=0.2.1
+runners:
+  - type: executable
+  - type: nextflow
+    directives:
+      label: [midtime,midmem,midcpu]

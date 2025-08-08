@@ -96,6 +96,8 @@ dependencies:
   - name: methods/singler
   - name: methods/xgboost
   - name: methods/uce
+  - name: methods/cellmapper_linear
+  - name: methods/cellmapper_scvi
   - name: metrics/accuracy
   - name: metrics/f1
 

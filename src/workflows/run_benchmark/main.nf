@@ -18,6 +18,8 @@ methods = [
   naive_bayes,
   scanvi,
   scanvi_scarches,
+  cellmapper_linear,
+  cellmapper_scvi,
 
   scgpt_finetuned.run(
     args: [model: file("s3://openproblems-work/cache/scGPT_human.zip")]
