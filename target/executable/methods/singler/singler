@@ -467,15 +467,15 @@ function ViashDockerfile {
 
   if [[ "$engine_id" == "docker" ]]; then
     cat << 'VIASHDOCKER'
-FROM openproblems/base_r:1.0.0
+FROM openproblems/base_r:1
 ENTRYPOINT []
 RUN Rscript -e 'if (!requireNamespace("BiocManager", quietly = TRUE)) install.packages("BiocManager")' && \
   Rscript -e 'if (!requireNamespace("SingleR", quietly = TRUE)) BiocManager::install("SingleR")'
 
 LABEL org.opencontainers.image.description="Companion container for running component methods singler"
-LABEL org.opencontainers.image.created="2025-08-08T13:01:40Z"
+LABEL org.opencontainers.image.created="2025-08-08T13:16:49Z"
 LABEL org.opencontainers.image.source="https://www.bioconductor.org/packages/release/bioc/html/SingleR.html"
-LABEL org.opencontainers.image.revision="67f290d1c283d95441102a5f629f0c5c708d5aa1"
+LABEL org.opencontainers.image.revision="041aa2253ce9a3475ec60c5d1c0e767ab5665fc3"
 LABEL org.opencontainers.image.version="build_main"
 
 VIASHDOCKER
