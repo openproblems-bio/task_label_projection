@@ -92,6 +92,7 @@ dependencies:
   - name: methods/scimilarity
   - name: methods/scimilarity_knn
   - name: methods/scprint
+  - name: methods/scvi_mlflow
   - name: methods/seurat_transferdata
   - name: methods/singler
   - name: methods/xgboost

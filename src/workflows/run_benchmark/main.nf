@@ -20,7 +20,6 @@ methods = [
   scanvi_scarches,
   cellmapper_linear,
   cellmapper_scvi,
-
   scgpt_finetuned.run(
     args: [model: file("s3://openproblems-work/cache/scGPT_human.zip")]
   ),
@@ -34,6 +33,9 @@ methods = [
     args: [model: file("s3://openproblems-work/cache/scimilarity-model_v1.1.tar.gz")]
   ),
   scprint,
+  scvi_mlflow.run(
+    args: [model: file("s3://openproblems-work/cache/scvi-mlflow-model.zip")]
+  ),
   seurat_transferdata,
   singler,
   uce.run(
