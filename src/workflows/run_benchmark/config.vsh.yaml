@@ -81,6 +81,7 @@ dependencies:
   - name: control_methods/random_labels
   - name: control_methods/true_labels
   - name: methods/geneformer
+  - name: methods/geneformer_mlflow
   - name: methods/knn
   - name: methods/logistic_regression
   - name: methods/mlp

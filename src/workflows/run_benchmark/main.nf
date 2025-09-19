@@ -12,6 +12,9 @@ methods = [
   random_labels,
   true_labels,
   geneformer,
+  geneformer_mlflow.run(
+    args: [model: file("s3://openproblems-work/cache/geneformer-mlflow-model.zip")]
+  ),
   knn,
   logistic_regression,
   mlp,
