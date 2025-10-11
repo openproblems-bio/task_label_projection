@@ -1,0 +1,28 @@
+namespace: "metrics"
+info:
+  type: metric
+  type_info:
+    label: Metric
+    summary: A label projection metric.
+    description: |
+      A metric for evaluating predicted labels.
+arguments:
+  - name: "--input_solution"
+    __merge__: file_solution.yaml
+    direction: input
+    required: true
+  - name: "--input_prediction"
+    __merge__: file_prediction.yaml
+    direction: input
+    required: true
+  - name: "--output"
+    __merge__: file_score.yaml
+    required: true
+    direction: output
+test_resources:
+  - path: /resources_test/task_label_projection/cxg_immune_cell_atlas
+    dest: resources_test/task_label_projection/cxg_immune_cell_atlas
+  - type: python_script
+    path: /common/component_tests/check_config.py
+  - type: python_script
+    path: /common/component_tests/run_and_check_output.py

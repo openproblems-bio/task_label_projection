@@ -1,0 +1,30 @@
+__merge__: /src/api/comp_metric.yaml
+name: "accuracy"
+info:
+  metrics:
+    - name: accuracy
+      label: Accuracy
+      summary: "The percentage of correctly predicted labels."
+      description: "The percentage of correctly predicted labels."
+      min: 0
+      max: 1
+      maximize: true
+      references:
+        doi: 10.48550/arxiv.2008.05756
+      v1:
+        path: openproblems/tasks/label_projection/metrics/accuracy.py
+        commit: b3456fd73c04c28516f6df34c57e6e3e8b0dab32
+resources:
+  - type: python_script
+    path: script.py
+engines:
+  - type: docker
+    image: openproblems/base_python:1
+    setup:
+      - type: python
+        packages: scikit-learn
+runners:
+  - type: executable
+  - type: nextflow
+    directives:
+      label: [midtime, midmem, midcpu]

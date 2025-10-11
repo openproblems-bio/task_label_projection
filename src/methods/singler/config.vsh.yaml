@@ -1,0 +1,32 @@
+__merge__: /src/api/comp_method.yaml
+name: "singler"
+label: SingleR
+summary: Reference-Based Single-Cell RNA-Seq Annotation
+description: |
+   Performs unbiased cell type recognition from single-cell RNA sequencing data,
+   by leveraging reference transcriptomic datasets of pure cell types to infer the
+   cell of origin of each single cell independently.
+references:
+  doi:
+    - 10.1038/s41590-018-0276-y
+links:
+  repository: https://www.bioconductor.org/packages/release/bioc/html/SingleR.html
+  documentation: https://www.bioconductor.org/packages/release/bioc/vignettes/SingleR/inst/doc/SingleR.html
+info:
+  preferred_normalization: log_cp10k
+  variants:
+    seurat:
+resources:
+  - type: r_script
+    path: script.R
+engines:
+  - type: docker
+    image: openproblems/base_r:1
+    setup:
+      - type: r
+        bioc: [SingleR]
+runners:
+  - type: executable
+  - type: nextflow
+    directives: 
+      label: [midtime, highmem, highcpu]

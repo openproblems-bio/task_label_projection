@@ -1,0 +1,101 @@
+viash_version: 0.9.4
+name: task_label_projection
+organization: openproblems-bio
+version: build_feature_no_ref_add_mlflow_models
+license: MIT
+keywords: ["single-cell", "label projection", "cell type annotation"]
+links:
+  issue_tracker: https://github.com/openproblems-bio/task_label_projection/issues
+  repository: https://github.com/openproblems-bio/task_label_projection
+  docker_registry: ghcr.io
+label: Label projection
+summary: Automated cell type annotation from rich, labeled reference data
+description: |
+  A major challenge for integrating single cell datasets is creating matching
+  cell type annotations for each cell. One of the most common strategies for
+  annotating cell types is referred to as
+  ["cluster-then-annotate"](https://www.nature.com/articles/s41576-018-0088-9)
+  whereby cells are aggregated into clusters based on feature similarity and
+  then manually characterized based on differential gene expression or previously
+  identified marker genes. Recently, methods have emerged to build on this
+  strategy and annotate cells using
+  [known marker genes](https://www.nature.com/articles/s41592-019-0535-3).
+  However, these strategies pose a difficulty for integrating atlas-scale
+  datasets as the particular annotations may not match.
+
+  To ensure that the cell type labels in newly generated datasets match
+  existing reference datasets, some methods align cells to a previously
+  annotated [reference dataset](https://academic.oup.com/bioinformatics/article/35/22/4688/54802990)
+  and then _project_ labels from the reference to the new dataset.
+
+  Here, we compare methods for annotation based on a reference dataset.
+  The datasets consist of two or more samples of single cell profiles that
+  have been manually annotated with matching labels. These datasets are then
+  split into training and test batches, and the task of each method is to
+  train a cell type classifer on the training set and project those labels
+  onto the test set.
+# references:
+#   doi:
+#     - 10.21203/rs.3.rs-4181617/v1
+#   bibtex:
+#     - |
+#       @article{doe_2021_template,
+#         doi = {10.21203/rs.3.rs-4181617/v1},
+#         url = {https://doi.org/10.21203/rs.3.rs-4181617/v1},
+#         author = {Doe, John},
+#         title = {A template for creating new tasks},
+#         publisher = {Research Square},
+#         year = {2021},
+#       }
+
+info:
+  image: thumbnail.svg
+  test_resources:
+    - type: s3
+      path: s3://openproblems-data/resources_test/common/cxg_immune_cell_atlas/
+      dest: resources_test/common/cxg_immune_cell_atlas
+    - type: s3
+      path: s3://openproblems-data/resources_test/task_label_projection/
+      dest: resources_test/task_label_projection
+authors:
+  - name: "Nikolay Markov"
+    roles: [author, maintainer]
+    info:
+      github: mxposed
+  - name: "Scott Gigante"
+    roles: [author]
+    info:
+      github: scottgigante
+      orcid: "0000-0002-4544-2764"
+  - name: Robrecht Cannoodt
+    roles: [author]
+    info:
+      github: rcannood
+      orcid: "0000-0003-3641-729X"
+  - name: Luke Zappia
+    roles: [author]
+    info:
+      github: lazappi
+      orcid: 0000-0001-7744-8565
+  - name: Sai Nirmayi Yasa
+    roles: [author]
+    info:
+      github: sainirmayi
+      orcid: 0009-0003-6319-9803
+  - name: Jeremie Kalfon
+    roles: [author]
+    info:
+      github: jkobject
+      orcid: 0000-0002-2818-9728
+  - name: Marius Lange
+    roles: [contributor]
+    info:
+      github: marius1311
+      orcid: 0000-0002-4846-1266
+config_mods: |
+  .runners[.type == "nextflow"].config.labels := { lowmem : "memory = 20.Gb", midmem : "memory = 50.Gb", highmem : "memory = 100.Gb", lowcpu : "cpus = 5", midcpu : "cpus = 15", highcpu : "cpus = 30", lowtime : "time = 1.h", midtime : "time = 4.h", hightime : "time = 8.h", veryhightime : "time = 24.h" }
+repositories:
+  - name: openproblems
+    type: github
+    repo: openproblems-bio/openproblems
+    tag: build/main

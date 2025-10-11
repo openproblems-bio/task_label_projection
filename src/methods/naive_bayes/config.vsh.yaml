@@ -1,0 +1,43 @@
+__merge__: /src/api/comp_method.yaml
+name: "naive_bayes"
+label: Naive Bayesian Classifier
+summary: "Naive Bayes classification using feature probabilities to project cell type labels from a reference dataset."
+description: |
+  Naive Bayes classification leverages probabilistic models based on Bayes' theorem
+  to classify cells into different types. In the context of single-cell datasets, this method
+  utilizes the probabilities of features to project cell type labels from a reference dataset
+  to new datasets. The algorithm assumes independence between features, making it computationally
+  efficient and well-suited for high-dimensional data. It is particularly useful for annotating
+  cells in atlas-scale datasets, ensuring consistency and alignment with existing reference annotations.
+references:
+  bibtex:
+    - |
+      @book{hosmer2013applied,
+        title={Applied logistic regression},
+        author={Hosmer, David W and Lemeshow, Stanley and Sturdivant, Rodney X},
+        year={2013},
+        publisher={John Wiley \& Sons}
+      }
+links:
+  repository: https://github.com/scikit-learn/scikit-learn
+  documentation: https://scikit-learn.org/stable/modules/generated/sklearn.naive_bayes.GaussianNB.html
+info:
+  preferred_normalization: log_cp10k
+  variants:
+    naive_bayes_log_cp10k:
+    naive_bayes_scran:
+      preferred_normalization: log_scran_pooling
+resources:
+  - type: python_script
+    path: script.py
+engines:
+  - type: docker
+    image: openproblems/base_python:1
+    setup:
+      - type: python
+        packages: scikit-learn
+runners:
+  - type: executable
+  - type: nextflow
+    directives: 
+      label: [midtime, midmem, midcpu]

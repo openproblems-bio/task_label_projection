@@ -1,0 +1,60 @@
+type: file
+example: "resources_test/task_label_projection/cxg_immune_cell_atlas/train.h5ad"
+label: "Training data"
+summary: "The training data"
+info:
+  format:
+    type: h5ad
+    layers: 
+      - type: integer
+        name: counts
+        description: Raw counts
+        required: true
+      - type: double
+        name: normalized
+        description: Normalized counts
+        required: true
+    obs:
+      - type: string
+        name: label
+        description: Ground truth cell type labels
+        required: true
+      - type: string
+        name: batch
+        description: Batch information
+        required: true
+    var:
+      - type: string
+        name: feature_id
+        description: Unique identifier for the feature, usually a ENSEMBL gene id.
+        required: true
+      - type: string
+        name: feature_name
+        description: A human-readable name for the feature, usually a gene symbol.
+        required: true
+      - type: boolean
+        name: hvg
+        description: Whether or not the feature is considered to be a 'highly variable gene'
+        required: true
+      - type: double
+        name: hvg_score
+        description: A ranking of the features by hvg.
+        required: true
+    obsm:
+      - type: double
+        name: X_pca
+        description: The resulting PCA embedding.
+        required: true
+    uns:
+      - type: string
+        name: dataset_id
+        description: "A unique identifier for the dataset"
+        required: true
+      - name: dataset_organism
+        type: string
+        description: The organism of the sample in the dataset.
+        required: true
+      - type: string
+        name: normalization_id
+        description: "Which normalization was used"
+        required: true
