@@ -1,12 +1,8 @@
 import os
 import sys
-import tempfile
-
 import anndata as ad
 import mlflow
-import pandas as pd
 import numpy as np
-import sklearn.neighbors
 
 ## VIASH START
 par = {
@@ -20,11 +16,12 @@ meta = {"name": "geneformer_mlflow"}
 
 sys.path.append(meta["resources_dir"])
 from exit_codes import exit_non_applicable  # noqa: E402
+from mlflow import embed_and_classify  # noqa: E402
 from unpack import unpack_directory  # noqa: E402
 
 print("====== Geneformer (MLflow model) ======", flush=True)
 
-n_processors = os.cpu_count()
+n_processors = meta.get("cpus") or os.cpu_count()
 print(f"Available processors: {n_processors}", flush=True)
 
 print("\n>>> Reading training data...", flush=True)
@@ -50,49 +47,25 @@ print("\n>>> Loading model...", flush=True)
 model = mlflow.pyfunc.load_model(model_dir)
 print(model, flush=True)
 
-# Temporary file for model input
-h5ad_file = tempfile.NamedTemporaryFile(suffix=".h5ad", delete=False)
 
-print("\n>>> Embedding training data...", flush=True)
-print("Writing temporary input H5AD file...", flush=True)
-input_adata = ad.AnnData(X=input_train.layers["counts"].copy())
-input_adata.var_names = input_train.var["feature_id"].values
-input_adata.obs["cell_idx"] = np.arange(input_adata.n_obs)
-input_adata.obs["n_counts"] = input_adata.X.sum(axis=1)
-input_adata.var["ensembl_id"] = input_train.var["feature_id"]
-print(input_adata, flush=True)
+def process_geneformer_adata(adata):
+    """Add required columns for Geneformer model."""
+    adata.obs["cell_idx"] = np.arange(adata.n_obs)
+    adata.obs["n_counts"] = adata.X.sum(axis=1)
 
-print(f"Temporary H5AD file: '{h5ad_file.name}'", flush=True)
-input_adata.write(h5ad_file.name)
-del input_adata
 
-print("Running model...", flush=True)
-input_df = pd.DataFrame({"input_uri": [h5ad_file.name]})
-embedding_train = model.predict(input_df, params={"nproc": n_processors})
+# Use embed_and_classify helper
+predictions = embed_and_classify(
+    input_train,
+    input_test,
+    model,
+    layers=["counts"],
+    var={"feature_id": "ensembl_id"},
+    model_params={"nproc": n_processors},
+    process_adata=process_geneformer_adata,
+)
 
-print("\n>>> Training kNN classifier...", flush=True)
-classifier = sklearn.neighbors.KNeighborsClassifier()
-classifier.fit(embedding_train, input_train.obs["label"].astype(str))
-
-print("\n>>> Embedding test data...", flush=True)
-print("Writing temporary input H5AD file...", flush=True)
-input_adata = ad.AnnData(X=input_test.layers["counts"].copy())
-input_adata.var_names = input_test.var["feature_id"].values
-input_adata.obs["cell_idx"] = np.arange(input_adata.n_obs)
-input_adata.obs["n_counts"] = input_adata.X.sum(axis=1)
-input_adata.var["ensembl_id"] = input_test.var["feature_id"]
-print(input_test, flush=True)
-
-print(f"Temporary H5AD file: '{h5ad_file.name}'", flush=True)
-input_adata.write(h5ad_file.name)
-del input_adata
-
-print("Running model...", flush=True)
-input_df = pd.DataFrame({"input_uri": [h5ad_file.name]})
-embedding_test = model.predict(input_df, params={"nproc": n_processors})
-
-print("\n>>> Classifying test data...", flush=True)
-input_test.obs["label_pred"] = classifier.predict(embedding_test)
+input_test.obs["label_pred"] = predictions
 print(input_test.obs["label_pred"].value_counts(), flush=True)
 
 print("\n>>> Storing output...", flush=True)
@@ -113,7 +86,5 @@ output.write_h5ad(par["output"], compression="gzip")
 print("\n>>> Cleaning up temporary files...", flush=True)
 if model_temp is not None:
     model_temp.cleanup()
-h5ad_file.close()
-os.unlink(h5ad_file.name)
 
 print("\n>>> Done!", flush=True)

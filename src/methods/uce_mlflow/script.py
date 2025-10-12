@@ -1,9 +1,6 @@
-import os
 import sys
-
 import anndata as ad
 import mlflow
-import pandas as pd
 
 ## VIASH START
 par = {
