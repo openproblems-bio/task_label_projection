@@ -112,7 +112,7 @@ else:
     )
 del m
 
-n_cores = max(16, len(os.sched_getaffinity(0)))
+n_cores = min(len(os.sched_getaffinity(0)), 24)
 
 print(f"Using {n_cores} worker cores")
 embedder = scprint.tasks.Embedder(

@@ -92,6 +92,7 @@ dependencies:
   - name: methods/scgpt_mlflow
   - name: methods/scimilarity
   - name: methods/scimilarity_knn
+  - name: methods/scprint
   - name: methods/scvi_mlflow
   - name: methods/seurat_transferdata
   - name: methods/singler
@@ -103,7 +104,6 @@ dependencies:
   # - name: methods/geneformer
   # - name: methods/scgpt_finetuned
   # - name: methods/scgpt_zeroshot
-  # - name: methods/scprint
   - name: metrics/accuracy
   - name: metrics/f1
 
