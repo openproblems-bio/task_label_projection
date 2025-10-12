@@ -3526,7 +3526,7 @@ meta = [
     "engine" : "docker",
     "output" : "target/nextflow/methods/scprint",
     "viash_version" : "0.9.4",
-    "git_commit" : "96847e44a2af77d65804f854b7a03af1c3ae4113",
+    "git_commit" : "326bd908f177b4c57ebff57ef6381a231f0eecd4",
     "git_remote" : "https://github.com/openproblems-bio/task_label_projection"
   },
   "package_config" : {
@@ -3801,7 +3801,7 @@ else:
     )
 del m
 
-n_cores = max(16, len(os.sched_getaffinity(0)))
+n_cores = min(len(os.sched_getaffinity(0)), 24)
 
 print(f"Using {n_cores} worker cores")
 embedder = scprint.tasks.Embedder(

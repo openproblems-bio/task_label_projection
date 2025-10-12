@@ -3437,7 +3437,7 @@ meta = [
     "engine" : "docker",
     "output" : "target/nextflow/methods/scanvi",
     "viash_version" : "0.9.4",
-    "git_commit" : "96847e44a2af77d65804f854b7a03af1c3ae4113",
+    "git_commit" : "326bd908f177b4c57ebff57ef6381a231f0eecd4",
     "git_remote" : "https://github.com/openproblems-bio/task_label_projection"
   },
   "package_config" : {

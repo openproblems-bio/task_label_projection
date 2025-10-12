@@ -458,9 +458,9 @@ RUN pip install --upgrade pip && \
   python -c 'from scdataloader.utils import populate_my_ontology; populate_my_ontology()'
 
 LABEL org.opencontainers.image.description="Companion container for running component methods scprint"
-LABEL org.opencontainers.image.created="2025-10-11T11:00:56Z"
+LABEL org.opencontainers.image.created="2025-10-12T06:51:50Z"
 LABEL org.opencontainers.image.source="https://github.com/cantinilab/scPRINT"
-LABEL org.opencontainers.image.revision="96847e44a2af77d65804f854b7a03af1c3ae4113"
+LABEL org.opencontainers.image.revision="326bd908f177b4c57ebff57ef6381a231f0eecd4"
 LABEL org.opencontainers.image.version="build_feature_no_ref_add_mlflow_models"
 
 VIASHDOCKER
@@ -1359,7 +1359,7 @@ else:
     )
 del m
 
-n_cores = max(16, len(os.sched_getaffinity(0)))
+n_cores = min(len(os.sched_getaffinity(0)), 24)
 
 print(f"Using {n_cores} worker cores")
 embedder = scprint.tasks.Embedder(

@@ -3514,7 +3514,13 @@ meta = [
       }
     },
     {
-      "name" : "methods/geneformer",
+      "name" : "methods/cellmapper_linear",
+      "repository" : {
+        "type" : "local"
+      }
+    },
+    {
+      "name" : "methods/cellmapper_scvi",
       "repository" : {
         "type" : "local"
       }
@@ -3562,13 +3568,7 @@ meta = [
       }
     },
     {
-      "name" : "methods/scgpt_finetuned",
-      "repository" : {
-        "type" : "local"
-      }
-    },
-    {
-      "name" : "methods/scgpt_zeroshot",
+      "name" : "methods/scgpt_mlflow",
       "repository" : {
         "type" : "local"
       }
@@ -3610,7 +3610,7 @@ meta = [
       }
     },
     {
-      "name" : "methods/xgboost",
+      "name" : "methods/transcriptformer_mlflow",
       "repository" : {
         "type" : "local"
       }
@@ -3622,13 +3622,13 @@ meta = [
       }
     },
     {
-      "name" : "methods/cellmapper_linear",
+      "name" : "methods/uce_mlflow",
       "repository" : {
         "type" : "local"
       }
     },
     {
-      "name" : "methods/cellmapper_scvi",
+      "name" : "methods/xgboost",
       "repository" : {
         "type" : "local"
       }
@@ -3702,7 +3702,7 @@ meta = [
     "engine" : "native",
     "output" : "target/nextflow/workflows/run_benchmark",
     "viash_version" : "0.9.4",
-    "git_commit" : "96847e44a2af77d65804f854b7a03af1c3ae4113",
+    "git_commit" : "326bd908f177b4c57ebff57ef6381a231f0eecd4",
     "git_remote" : "https://github.com/openproblems-bio/task_label_projection"
   },
   "package_config" : {
@@ -3834,7 +3834,8 @@ include { extract_uns_metadata } from "${meta.root_dir}/dependencies/github/open
 include { majority_vote } from "${meta.resources_dir}/../../../nextflow/control_methods/majority_vote/main.nf"
 include { random_labels } from "${meta.resources_dir}/../../../nextflow/control_methods/random_labels/main.nf"
 include { true_labels } from "${meta.resources_dir}/../../../nextflow/control_methods/true_labels/main.nf"
-include { geneformer } from "${meta.resources_dir}/../../../nextflow/methods/geneformer/main.nf"
+include { cellmapper_linear } from "${meta.resources_dir}/../../../nextflow/methods/cellmapper_linear/main.nf"
+include { cellmapper_scvi } from "${meta.resources_dir}/../../../nextflow/methods/cellmapper_scvi/main.nf"
 include { geneformer_mlflow } from "${meta.resources_dir}/../../../nextflow/methods/geneformer_mlflow/main.nf"
 include { knn } from "${meta.resources_dir}/../../../nextflow/methods/knn/main.nf"
 include { logistic_regression } from "${meta.resources_dir}/../../../nextflow/methods/logistic_regression/main.nf"
@@ -3842,18 +3843,17 @@ include { mlp } from "${meta.resources_dir}/../../../nextflow/methods/mlp/main.n
 include { naive_bayes } from "${meta.resources_dir}/../../../nextflow/methods/naive_bayes/main.nf"
 include { scanvi } from "${meta.resources_dir}/../../../nextflow/methods/scanvi/main.nf"
 include { scanvi_scarches } from "${meta.resources_dir}/../../../nextflow/methods/scanvi_scarches/main.nf"
-include { scgpt_finetuned } from "${meta.resources_dir}/../../../nextflow/methods/scgpt_finetuned/main.nf"
-include { scgpt_zeroshot } from "${meta.resources_dir}/../../../nextflow/methods/scgpt_zeroshot/main.nf"
+include { scgpt_mlflow } from "${meta.resources_dir}/../../../nextflow/methods/scgpt_mlflow/main.nf"
 include { scimilarity } from "${meta.resources_dir}/../../../nextflow/methods/scimilarity/main.nf"
 include { scimilarity_knn } from "${meta.resources_dir}/../../../nextflow/methods/scimilarity_knn/main.nf"
 include { scprint } from "${meta.resources_dir}/../../../nextflow/methods/scprint/main.nf"
 include { scvi_mlflow } from "${meta.resources_dir}/../../../nextflow/methods/scvi_mlflow/main.nf"
 include { seurat_transferdata } from "${meta.resources_dir}/../../../nextflow/methods/seurat_transferdata/main.nf"
 include { singler } from "${meta.resources_dir}/../../../nextflow/methods/singler/main.nf"
-include { xgboost } from "${meta.resources_dir}/../../../nextflow/methods/xgboost/main.nf"
+include { transcriptformer_mlflow } from "${meta.resources_dir}/../../../nextflow/methods/transcriptformer_mlflow/main.nf"
 include { uce } from "${meta.resources_dir}/../../../nextflow/methods/uce/main.nf"
-include { cellmapper_linear } from "${meta.resources_dir}/../../../nextflow/methods/cellmapper_linear/main.nf"
-include { cellmapper_scvi } from "${meta.resources_dir}/../../../nextflow/methods/cellmapper_scvi/main.nf"
+include { uce_mlflow } from "${meta.resources_dir}/../../../nextflow/methods/uce_mlflow/main.nf"
+include { xgboost } from "${meta.resources_dir}/../../../nextflow/methods/xgboost/main.nf"
 include { accuracy } from "${meta.resources_dir}/../../../nextflow/metrics/accuracy/main.nf"
 include { f1 } from "${meta.resources_dir}/../../../nextflow/metrics/f1/main.nf"
 
@@ -3872,7 +3872,7 @@ methods = [
   majority_vote,
   random_labels,
   true_labels,
-  geneformer,
+  // geneformer,
   geneformer_mlflow.run(
     args: [model: file("s3://openproblems-work/cache/geneformer-mlflow-model.zip")]
   ),
@@ -3884,12 +3884,15 @@ methods = [
   scanvi_scarches,
   cellmapper_linear,
   cellmapper_scvi,
-  scgpt_finetuned.run(
-    args: [model: file("s3://openproblems-work/cache/scGPT_human.zip")]
+  // scgpt_finetuned.run(
+  //   args: [model: file("s3://openproblems-work/cache/scGPT_human.zip")]
+  // ),
+  scgpt_mlflow.run(
+    args: [model: file("s3://openproblems-work/cache/scgpt-mlflow-model.zip")]
   ),
-  scgpt_zeroshot.run(
-    args: [model: file("s3://openproblems-work/cache/scGPT_human.zip")]
-  ),
+  // scgpt_zeroshot.run(
+  //   args: [model: file("s3://openproblems-work/cache/scGPT_human.zip")]
+  // ),
   scimilarity.run(
     args: [model: file("s3://openproblems-work/cache/scimilarity-model_v1.1.tar.gz")]
   ),
@@ -3902,8 +3905,14 @@ methods = [
   ),
   seurat_transferdata,
   singler,
+  transcriptformer_mlflow.run(
+    args: [model: file("s3://openproblems-work/cache/transcriptformer-mlflow-model.zip")]
+  ),
   uce.run(
     args: [model: file("s3://openproblems-work/cache/uce-model-v5.zip")]
+  ),
+  uce_mlflow.run(
+    args: [model: file("s3://openproblems-work/cache/uce-mlflow-model.zip")]
   ),
   xgboost
 ]

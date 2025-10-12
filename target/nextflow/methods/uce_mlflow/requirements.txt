@@ -1,0 +1,4 @@
+anndata
+accelerate>=0.34.0
+scipy
+scikit-learn

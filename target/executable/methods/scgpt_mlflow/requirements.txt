@@ -1,0 +1,4 @@
+anndata
+scgpt==0.2.1
+scipy
+scikit-learn

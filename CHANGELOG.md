@@ -3,6 +3,7 @@
 ## NEW FUNCTIONALITY
 
 * Add new method: CellMapper, which is a k-NN based approach to map cells across representations and can be used for label projection. Two versions are included here, one based on PCA or CCA embeddings (`linear`) and one based on an scvi embedding (`scvi`) (PR #22)
+* Add MLflow-based methods: Geneformer, scGPT, scVI, TranscriptFormer, and UCE for label projection using pre-trained foundation models (PR #28)
 
 ## MAJOR CHANGES
 
