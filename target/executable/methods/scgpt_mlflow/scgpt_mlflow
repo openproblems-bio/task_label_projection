@@ -446,9 +446,9 @@ function ViashDockerfile {
 FROM openproblems/base_pytorch_nvidia:1
 ENTRYPOINT []
 LABEL org.opencontainers.image.description="Companion container for running component methods scgpt_mlflow"
-LABEL org.opencontainers.image.created="2025-10-12T06:51:51Z"
+LABEL org.opencontainers.image.created="2025-10-12T10:01:30Z"
 LABEL org.opencontainers.image.source="https://github.com/bowang-lab/scGPT"
-LABEL org.opencontainers.image.revision="326bd908f177b4c57ebff57ef6381a231f0eecd4"
+LABEL org.opencontainers.image.revision="d470a829e150016613e71ddbef3f193f64718c65"
 LABEL org.opencontainers.image.version="build_feature_no_ref_add_mlflow_models"
 
 VIASHDOCKER
