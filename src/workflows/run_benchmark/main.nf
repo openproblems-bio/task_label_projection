@@ -11,7 +11,7 @@ methods = [
   majority_vote,
   random_labels,
   true_labels,
-  geneformer,
+  // geneformer,
   geneformer_mlflow.run(
     args: [model: file("s3://openproblems-work/cache/geneformer-mlflow-model.zip")]
   ),
@@ -23,26 +23,35 @@ methods = [
   scanvi_scarches,
   cellmapper_linear,
   cellmapper_scvi,
-  scgpt_finetuned.run(
-    args: [model: file("s3://openproblems-work/cache/scGPT_human.zip")]
+  // scgpt_finetuned.run(
+  //   args: [model: file("s3://openproblems-work/cache/scGPT_human.zip")]
+  // ),
+  scgpt_mlflow.run(
+    args: [model: file("s3://openproblems-work/cache/scgpt-mlflow-model.zip")]
   ),
-  scgpt_zeroshot.run(
-    args: [model: file("s3://openproblems-work/cache/scGPT_human.zip")]
-  ),
+  // scgpt_zeroshot.run(
+  //   args: [model: file("s3://openproblems-work/cache/scGPT_human.zip")]
+  // ),
   scimilarity.run(
     args: [model: file("s3://openproblems-work/cache/scimilarity-model_v1.1.tar.gz")]
   ),
   scimilarity_knn.run(
     args: [model: file("s3://openproblems-work/cache/scimilarity-model_v1.1.tar.gz")]
   ),
-  scprint,
+  // scprignt,
   scvi_mlflow.run(
     args: [model: file("s3://openproblems-work/cache/scvi-mlflow-model.zip")]
   ),
   seurat_transferdata,
   singler,
+  transcriptformer_mlflow.run(
+    args: [model: file("s3://openproblems-work/cache/transcriptformer-mlflow-model.zip")]
+  ),
   uce.run(
     args: [model: file("s3://openproblems-work/cache/uce-model-v5.zip")]
+  ),
+  uce_mlflow.run(
+    args: [model: file("s3://openproblems-work/cache/uce-mlflow-model.zip")]
   ),
   xgboost
 ]
