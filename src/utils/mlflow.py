@@ -120,9 +120,8 @@ def embed(adata, model, layers=None, obs=None, var=None, model_params=None, proc
     return embedding
 
 
-def embed_and_classify(
+def train_classifier(
     train_adata,
-    test_adata,
     model,
     layers=None,
     obs=None,
@@ -132,11 +131,10 @@ def embed_and_classify(
     n_neighbors=5,
 ):
     """
-    Generic pipeline for embedding data and training a kNN classifier.
+    Embed training data and train a kNN classifier.
 
     Args:
         train_adata: Training AnnData object with labels
-        test_adata: Test AnnData object to predict
         model: Loaded MLflow model
         layers: List of layer names to include (e.g., ["counts"])
         obs: List of obs column names to include (e.g., ["batch"])
@@ -146,7 +144,7 @@ def embed_and_classify(
         n_neighbors: Number of neighbors for kNN classifier
 
     Returns:
-        np.ndarray: Predicted labels for test data
+        sklearn.neighbors.KNeighborsClassifier: Trained classifier
     """
     # Embed training data
     print("\n>>> Embedding training data...", flush=True)
@@ -160,6 +158,35 @@ def embed_and_classify(
     classifier = sklearn.neighbors.KNeighborsClassifier(n_neighbors=n_neighbors)
     classifier.fit(embedding_train, train_adata.obs["label"].astype(str))
 
+    return classifier
+
+
+def classify(
+    test_adata,
+    model,
+    classifier,
+    layers=None,
+    obs=None,
+    var=None,
+    model_params=None,
+    process_adata=None,
+):
+    """
+    Embed test data and classify using a trained classifier.
+
+    Args:
+        test_adata: Test AnnData object to predict
+        model: Loaded MLflow model
+        classifier: Trained sklearn classifier
+        layers: List of layer names to include (e.g., ["counts"])
+        obs: List of obs column names to include (e.g., ["batch"])
+        var: Dict mapping var column names to new names (e.g., {"feature_id": "ensembl_id"})
+        model_params: Optional dict of parameters to pass to model.predict()
+        process_adata: Optional function to process input_adata before writing (e.g., to add defaults)
+
+    Returns:
+        pd.Series: Predicted labels for test data
+    """
     # Embed test data
     print("\n>>> Embedding test data...", flush=True)
     embedding_test = embed(
@@ -171,4 +198,4 @@ def embed_and_classify(
     print("\n>>> Classifying test data...", flush=True)
     predictions = classifier.predict(embedding_test)
 
-    return predictions
+    return pd.Series(predictions, index=test_adata.obs_names)

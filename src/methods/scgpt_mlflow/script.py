@@ -14,7 +14,7 @@ meta = {"name": "scgpt_mlflow"}
 
 sys.path.append(meta["resources_dir"])
 from exit_codes import exit_non_applicable  # noqa: E402
-from mlflow import embed_and_classify  # noqa: E402
+from mlflow import train_classifier, classify  # noqa: E402
 from unpack import unpack_directory  # noqa: E402
 
 print("====== scGPT (MLflow model) ======", flush=True)
@@ -30,11 +30,6 @@ if input_train.uns["dataset_organism"] != "homo_sapiens":
         f'(dataset_organism == "{input_train.uns["dataset_organism"]}")'
     )
 
-print("\n>>> Reading test data...", flush=True)
-print(f"Test H5AD file: '{par['input_test']}'", flush=True)
-input_test = ad.read_h5ad(par["input_test"])
-print(input_test, flush=True)
-
 print("\n>>> Unpacking model...", flush=True)
 model_dir, model_temp = unpack_directory(par["model"])
 
@@ -42,26 +37,49 @@ print("\n>>> Loading model...", flush=True)
 model = mlflow.pyfunc.load_model(model_dir)
 print(model, flush=True)
 
-# Use embed_and_classify helper
-predictions = embed_and_classify(
+# Train classifier on training data
+classifier = train_classifier(
     input_train,
-    input_test,
     model,
     layers=["counts"],
     var={"feature_name": "feature_name"},
     model_params={"gene_col": "feature_name"},
 )
 
-input_test.obs["label_pred"] = predictions
-print(input_test.obs["label_pred"].value_counts(), flush=True)
+# Free memory - no longer need training data
+del input_train
+
+print("\n>>> Reading test data...", flush=True)
+print(f"Test H5AD file: '{par['input_test']}'", flush=True)
+input_test = ad.read_h5ad(par["input_test"])
+print(input_test, flush=True)
+
+# Store metadata before classifying
+dataset_id = input_test.uns["dataset_id"]
+normalization_id = input_test.uns["normalization_id"]
+
+# Classify test data
+predictions = classify(
+    input_test,
+    model,
+    classifier,
+    layers=["counts"],
+    var={"feature_name": "feature_name"},
+    model_params={"gene_col": "feature_name"},
+)
+
+# Free memory - no longer need test data
+del input_test
+
+print(predictions.value_counts(), flush=True)
 
 print("\n>>> Storing output...", flush=True)
 output = ad.AnnData(
-    obs=input_test.obs[["label_pred"]],
+    obs={"label_pred": predictions},
     uns={
         "method_id": meta["name"],
-        "dataset_id": input_test.uns["dataset_id"],
-        "normalization_id": input_test.uns["normalization_id"],
+        "dataset_id": dataset_id,
+        "normalization_id": normalization_id,
     },
 )
 print(output, flush=True)
