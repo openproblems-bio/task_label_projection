@@ -7,6 +7,7 @@ import scprint
 import torch
 from huggingface_hub import hf_hub_download
 from scdataloader import Preprocessor
+from scdataloader.utils import load_genes
 from scipy.optimize import linear_sum_assignment
 from scipy.spatial import distance
 from scprint import scPrint
@@ -18,7 +19,7 @@ par = {
     "output": "output.h5ad",
     "model_name": "v2-medium",
     "model": None,
-    "infer_matches": "linear_sum_assignment",
+    "infer_matches": "direct",
 }
 meta = {"name": "scprint"}
 ## VIASH END
@@ -34,7 +35,9 @@ os.environ["PYTORCH_CUDA_ALLOC_CONF"] = "expandable_segments:True"
 print("\n>>> Reading input data...", flush=True)
 input_train = ad.read_h5ad(par["input_train"])
 input_test = ad.read_h5ad(par["input_test"])
+
 input_test_uns = input_test.uns.copy()
+input_test_obs = input_test.obs.copy()
 
 print("\n>>> Preprocessing input data...", flush=True)
 # store organism ontology term id
@@ -85,32 +88,52 @@ if model_checkpoint_file is None:
 
 if torch.cuda.is_available():
     print("CUDA is available, using GPU", flush=True)
-    precision = "16"
-    dtype = torch.float16
     transformer = "flash"
 else:
     print("CUDA is not available, using CPU", flush=True)
-    precision = "32"
-    dtype = torch.float32
     transformer = "normal"
 
-print(f"Model checkpoint file: '{model_checkpoint_file}'", flush=True)
+# make sure that you check if you have a GPU with flashattention or not (see README)
+try:
+    m = torch.load(model_checkpoint_file)
+# if not use this instead since the model weights are by default mapped to GPU types
+except RuntimeError:
+    m = torch.load(model_checkpoint_file, map_location=torch.device("cpu"))
 
-m = torch.load(model_checkpoint_file, map_location=torch.device("cpu"))
+# both are for compatibility issues with different versions of the pretrained model, so we need to load it with the correct transformer
+if "prenorm" in m["hyper_parameters"]:
+    m["hyper_parameters"].pop("prenorm")
+    torch.save(m, model_checkpoint_file)
 if "label_counts" in m["hyper_parameters"]:
+    # you need to set precpt_gene_emb=None otherwise the model will look for its precomputed gene embeddings files although they were already converted into model weights, so you don't need this file for a pretrained model
     model = scPrint.load_from_checkpoint(
         model_checkpoint_file,
-        transformer=transformer,  # Don't use this for GPUs with flashattention
         precpt_gene_emb=None,
         classes=m["hyper_parameters"]["label_counts"],
+        transformer=transformer,
     )
 else:
     model = scPrint.load_from_checkpoint(
-        model_checkpoint_file,
-        transformer=transformer,  # Don't use this for GPUs with flashattention
-        precpt_gene_emb=None,
+        model_checkpoint_file, precpt_gene_emb=None, transformer=transformer
     )
 del m
+# this might happen if you have a model that was trained with a different set of genes than the one you are using in the ontology (e.g. newer ontologies), While having genes in the onlogy not in the model is fine. the opposite is not, so we need to remove the genes that are in the model but not in the ontology
+missing = set(model.genes) - set(load_genes(model.organisms).index)
+if len(missing) > 0:
+    print(
+        "Warning: some genes missmatch exist between model and ontology: solving...",
+    )
+    model._rm_genes(missing)
+
+# again if not on GPU you need to convert the model to float64
+if not torch.cuda.is_available():
+    model = model.to(torch.float32)
+
+# you can perform your inference on float16 if you have a GPU, otherwise use float64
+dtype = torch.float16 if torch.cuda.is_available() else torch.float32
+
+# the models are often loaded with some parts still displayed as "cuda" and some as "cpu", so we need to make sure that the model is fully on the right device
+model = model.to("cuda" if torch.cuda.is_available() else "cpu")
 
 n_cores = max(16, len(os.sched_getaffinity(0)))
 
@@ -123,7 +146,6 @@ embedder = scprint.tasks.Embedder(
     num_workers=n_cores,
     doclass=True,
     doplot=False,
-    precision=precision,
     dtype=dtype,
     pred_embedding=["cell_type_ontology_term_id"],
     keep_all_cls_pred=False,
@@ -217,7 +239,6 @@ embedder = scprint.tasks.Embedder(
     num_workers=n_cores,
     doclass=True,
     doplot=False,
-    precision=precision,
     dtype=dtype,
     pred_embedding=["cell_type_ontology_term_id"],
     keep_all_cls_pred=False,
@@ -230,6 +251,7 @@ input_test.obs["label_pred"] = embedded_test.obs[
     "conv_pred_cell_type_ontology_term_id"
 ].values
 input_test.obs = input_test.obs.replace(dict(label_pred=matches))
+input_test.obs.index = input_test_obs.index
 
 print("\n>>> Storing output...", flush=True)
 output = ad.AnnData(

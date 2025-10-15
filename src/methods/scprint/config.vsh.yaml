@@ -64,14 +64,14 @@ arguments:
   - name: --max_len
     type: integer
     description: The maximum length of the gene sequence.
-    default: 4000
+    default: 2000
   - name: --infer_matches
     type: string
     description:
       The method to use to infer the matches between the predicted and
       true labels.
     choices: ["direct", "linear_sum_assignment"]
-    default: "linear_sum_assignment"
+    default: "direct"
 
 resources:
   - type: python_script
@@ -84,8 +84,7 @@ engines:
     setup:
       - type: python
         pip:
-          - scprint>=2.3.0
-          - gseapy>=1.1.8
+          - scprint==2.3.5
       - type: docker
         run: |
           lamin init --storage ./main --name main --schema bionty && \
@@ -97,6 +96,7 @@ engines:
 
 runners:
   - type: executable
+    # docker_run_args: --gpus all
   - type: nextflow
     directives:
       label: [hightime, highmem, midcpu, gpu, highsharedmem]
