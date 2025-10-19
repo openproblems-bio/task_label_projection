@@ -90,6 +90,8 @@ dependencies:
   - name: methods/scanvi
   - name: methods/scanvi_scarches
   - name: methods/scgpt_mlflow
+  - name: methods/scgpt_finetuned
+  - name: methods/scgpt_zeroshot
   - name: methods/scimilarity
   - name: methods/scimilarity_knn
   - name: methods/scprint
@@ -102,8 +104,6 @@ dependencies:
   - name: methods/xgboost
   # always fails:
   # - name: methods/geneformer
-  # - name: methods/scgpt_finetuned
-  # - name: methods/scgpt_zeroshot
   - name: metrics/accuracy
   - name: metrics/f1
 
