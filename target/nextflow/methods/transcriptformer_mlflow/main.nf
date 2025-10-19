@@ -3419,7 +3419,7 @@ meta = [
     "engine" : "docker",
     "output" : "target/nextflow/methods/transcriptformer_mlflow",
     "viash_version" : "0.9.4",
-    "git_commit" : "d72afccaf0e4777237155767b7df1b87c562bad3",
+    "git_commit" : "33dde5a4eb87c3234506d5c5efa047bc1f404541",
     "git_remote" : "https://github.com/openproblems-bio/task_label_projection"
   },
   "package_config" : {

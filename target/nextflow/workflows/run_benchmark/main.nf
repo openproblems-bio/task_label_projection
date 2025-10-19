@@ -3574,6 +3574,18 @@ meta = [
       }
     },
     {
+      "name" : "methods/scgpt_finetuned",
+      "repository" : {
+        "type" : "local"
+      }
+    },
+    {
+      "name" : "methods/scgpt_zeroshot",
+      "repository" : {
+        "type" : "local"
+      }
+    },
+    {
       "name" : "methods/scimilarity",
       "repository" : {
         "type" : "local"
@@ -3702,7 +3714,7 @@ meta = [
     "engine" : "native",
     "output" : "target/nextflow/workflows/run_benchmark",
     "viash_version" : "0.9.4",
-    "git_commit" : "d72afccaf0e4777237155767b7df1b87c562bad3",
+    "git_commit" : "33dde5a4eb87c3234506d5c5efa047bc1f404541",
     "git_remote" : "https://github.com/openproblems-bio/task_label_projection"
   },
   "package_config" : {
@@ -3844,6 +3856,8 @@ include { naive_bayes } from "${meta.resources_dir}/../../../nextflow/methods/na
 include { scanvi } from "${meta.resources_dir}/../../../nextflow/methods/scanvi/main.nf"
 include { scanvi_scarches } from "${meta.resources_dir}/../../../nextflow/methods/scanvi_scarches/main.nf"
 include { scgpt_mlflow } from "${meta.resources_dir}/../../../nextflow/methods/scgpt_mlflow/main.nf"
+include { scgpt_finetuned } from "${meta.resources_dir}/../../../nextflow/methods/scgpt_finetuned/main.nf"
+include { scgpt_zeroshot } from "${meta.resources_dir}/../../../nextflow/methods/scgpt_zeroshot/main.nf"
 include { scimilarity } from "${meta.resources_dir}/../../../nextflow/methods/scimilarity/main.nf"
 include { scimilarity_knn } from "${meta.resources_dir}/../../../nextflow/methods/scimilarity_knn/main.nf"
 include { scprint } from "${meta.resources_dir}/../../../nextflow/methods/scprint/main.nf"
@@ -3884,15 +3898,15 @@ methods = [
   scanvi_scarches,
   cellmapper_linear,
   cellmapper_scvi,
-  // scgpt_finetuned.run(
-  //   args: [model: file("s3://openproblems-work/cache/scGPT_human.zip")]
-  // ),
+  scgpt_finetuned.run(
+    args: [model: file("s3://openproblems-work/cache/scGPT_human.zip")]
+  ),
   scgpt_mlflow.run(
     args: [model: file("s3://openproblems-work/cache/scgpt-mlflow-model.zip")]
   ),
-  // scgpt_zeroshot.run(
-  //   args: [model: file("s3://openproblems-work/cache/scGPT_human.zip")]
-  // ),
+  scgpt_zeroshot.run(
+    args: [model: file("s3://openproblems-work/cache/scGPT_human.zip")]
+  ),
   scimilarity.run(
     args: [model: file("s3://openproblems-work/cache/scimilarity-model_v1.1.tar.gz")]
   ),
