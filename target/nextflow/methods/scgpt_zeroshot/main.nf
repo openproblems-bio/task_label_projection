@@ -3439,19 +3439,9 @@ meta = [
       "namespace_separator" : "/",
       "setup" : [
         {
-          "type" : "python",
-          "user" : false,
-          "pypi" : [
-            "gdown",
-            "scgpt",
-            "faiss-cpu"
-          ],
-          "upgrade" : true
-        },
-        {
           "type" : "docker",
           "run" : [
-            "pip install --upgrade --no-deps --force-reinstall git+https://github.com/bowang-lab/scGPT.git\n"
+            "git clone https://github.com/bowang-lab/scGPT && \\\\\npip install torch==2.2.0 torchvision==0.17.0 torchaudio==2.2.0 --index-url https://download.pytorch.org/whl/cu121 && \\\\\npip install \\"flash-attn<1.0.5\\" --no-build-isolation && \\\\\npip install ipykernel pandas scanpy numba \\"numpy<1.24\\" torchtext==0.17.0 scib \\"scvi-tools<1.0\\" datasets==2.14.5 transformers==4.33.2 wandb \\"cell-gears<0.0.3\\" torch_geometric pyarrow==15.0.0 gdown && \\\\\ncd scGPT && pip install -e . --no-deps\n"
           ]
         }
       ]
@@ -3463,7 +3453,7 @@ meta = [
     "engine" : "docker",
     "output" : "target/nextflow/methods/scgpt_zeroshot",
     "viash_version" : "0.9.4",
-    "git_commit" : "adf04d143d0fc17cc245b3063a912b1b3cedb9cc",
+    "git_commit" : "86e579e03e346014f89fb3032c4d061e991a10ac",
     "git_remote" : "https://github.com/openproblems-bio/task_label_projection"
   },
   "package_config" : {
