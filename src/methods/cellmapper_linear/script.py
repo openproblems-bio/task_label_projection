@@ -39,7 +39,7 @@ cmap.compute_neighbors(
 cmap.compute_mapping_matrix(kernel_method=par['kernel_method'])
 
 print("Predict on test data", flush=True)
-cmap.map_obs(key="label", prediction_postfix="pred")
+cmap.map_obs(key="label", prediction_postfix="_pred")
 label_pred = cmap.query.obs["label_pred"].astype(str)
 
 print("Create output data", flush=True)
