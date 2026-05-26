@@ -449,9 +449,9 @@ RUN pip install --upgrade pip && \
   pip install --upgrade --no-cache-dir "xgboost"
 
 LABEL org.opencontainers.image.description="Companion container for running component methods xgboost"
-LABEL org.opencontainers.image.created="2025-10-19T16:58:27Z"
+LABEL org.opencontainers.image.created="2026-05-26T12:54:13Z"
 LABEL org.opencontainers.image.source="https://github.com/dmlc/xgboost"
-LABEL org.opencontainers.image.revision="86e579e03e346014f89fb3032c4d061e991a10ac"
+LABEL org.opencontainers.image.revision="2ce95d5631d8bd1af95b382fc5964fb215aae492"
 LABEL org.opencontainers.image.version="build_main"
 
 VIASHDOCKER

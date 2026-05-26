@@ -3288,13 +3288,13 @@ meta = [
           "name" : "--model_name",
           "description" : "Which model to use. Not used if --model is provided.",
           "default" : [
-            "v2-medium"
+            "medium-v1.5"
           ],
           "required" : false,
           "choices" : [
-            "large",
-            "v2-medium",
-            "small"
+            "large-v1",
+            "medium-v1.5",
+            "small-v1"
           ],
           "direction" : "input",
           "multiple" : false,
@@ -3389,18 +3389,18 @@ meta = [
     "preferred_normalization" : "counts",
     "variants" : {
       "scprint_large" : {
-        "model_name" : "large"
+        "model_name" : "large-v1"
       },
       "scprint_medium" : {
-        "model_name" : "v2-medium"
+        "model_name" : "medium-v1.5"
       },
       "scprint_small" : {
-        "model_name" : "small"
+        "model_name" : "small-v1"
       }
     },
     "test_setup" : {
       "run" : {
-        "model_name" : "small",
+        "model_name" : "small-v1",
         "batch_size" : 16,
         "max_len" : 100
       }
@@ -3525,7 +3525,7 @@ meta = [
     "engine" : "docker",
     "output" : "target/nextflow/methods/scprint",
     "viash_version" : "0.9.4",
-    "git_commit" : "86e579e03e346014f89fb3032c4d061e991a10ac",
+    "git_commit" : "2ce95d5631d8bd1af95b382fc5964fb215aae492",
     "git_remote" : "https://github.com/openproblems-bio/task_label_projection"
   },
   "package_config" : {

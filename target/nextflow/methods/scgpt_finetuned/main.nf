@@ -3436,7 +3436,7 @@ meta = [
     "engine" : "docker",
     "output" : "target/nextflow/methods/scgpt_finetuned",
     "viash_version" : "0.9.4",
-    "git_commit" : "86e579e03e346014f89fb3032c4d061e991a10ac",
+    "git_commit" : "2ce95d5631d8bd1af95b382fc5964fb215aae492",
     "git_remote" : "https://github.com/openproblems-bio/task_label_projection"
   },
   "package_config" : {
