@@ -80,24 +80,30 @@ dependencies:
   - name: control_methods/majority_vote
   - name: control_methods/random_labels
   - name: control_methods/true_labels
-  - name: methods/geneformer
+  - name: methods/cellmapper_linear
+  - name: methods/cellmapper_scvi
+  - name: methods/geneformer_mlflow
   - name: methods/knn
   - name: methods/logistic_regression
   - name: methods/mlp
   - name: methods/naive_bayes
   - name: methods/scanvi
   - name: methods/scanvi_scarches
+  - name: methods/scgpt_mlflow
   - name: methods/scgpt_finetuned
   - name: methods/scgpt_zeroshot
   - name: methods/scimilarity
   - name: methods/scimilarity_knn
   - name: methods/scprint
+  - name: methods/scvi_mlflow
   - name: methods/seurat_transferdata
   - name: methods/singler
-  - name: methods/xgboost
+  - name: methods/transcriptformer_mlflow
   - name: methods/uce
-  - name: methods/cellmapper_linear
-  - name: methods/cellmapper_scvi
+  - name: methods/uce_mlflow
+  - name: methods/xgboost
+  # always fails:
+  # - name: methods/geneformer
   - name: metrics/accuracy
   - name: metrics/f1
 

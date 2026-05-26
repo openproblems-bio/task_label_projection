@@ -135,7 +135,7 @@ dtype = torch.float16 if torch.cuda.is_available() else torch.float32
 # the models are often loaded with some parts still displayed as "cuda" and some as "cpu", so we need to make sure that the model is fully on the right device
 model = model.to("cuda" if torch.cuda.is_available() else "cpu")
 
-n_cores = max(16, len(os.sched_getaffinity(0)))
+n_cores = min(len(os.sched_getaffinity(0)), 24)
 
 print(f"Using {n_cores} worker cores")
 embedder = scprint.tasks.Embedder(
