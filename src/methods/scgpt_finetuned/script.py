@@ -14,8 +14,6 @@ import numpy as np
 import scgpt
 import torch
 from scipy.sparse import issparse
-from torchtext.vocab import Vocab
-from torchtext._torchtext import Vocab as VocabPybind
 from sklearn.model_selection import train_test_split
 
 
@@ -125,7 +123,7 @@ scgpt.utils.set_seed(0)
 # Recommended hyperparameter setup for cell-type annotation tasks
 hyperparameters = dict(
     mask_ratio=0.0,
-    epochs=10,
+    epochs=par["epochs"],
     n_bins=51,
     MVC=False,  # Masked value prediction for cell embedding
     ecs_threshold=0.0,  # Elastic cell similarity objective, 0.0 to 1.0, 0.0 to disable
@@ -134,7 +132,7 @@ hyperparameters = dict(
     batch_size=32,
     dropout=0.2,  # dropout probability
     schedule_ratio=0.9,  # ratio of epochs for learning rate schedule
-    fast_transformer=True,
+    fast_transformer=False,
     pre_norm=False,
     amp=True,  # Automatic Mixed Precision
     include_zero_gene=False,
@@ -264,11 +262,6 @@ genes = input_train.var["feature_name"].tolist()
     shuffle=True,
 )
 
-if model_dir is None:
-    vocab = Vocab(
-        VocabPybind(genes + special_tokens, None)
-    )  # bidirectional lookup [gene <-> int]
-vocab.set_default_index(vocab["<pad>"])
 gene_ids = np.array(vocab(genes), dtype=int)
 tokenized_train = scgpt.tokenizer.tokenize_and_pad_batch(
     train_data,

@@ -1,4 +1,4 @@
-__merge__: ../../api/base_method.yaml
+__merge__: ../../api/comp_method.yaml
 
 name: scgpt_finetuned
 label: scGPT (fine-tuned)
@@ -15,17 +15,27 @@ links:
 
 info:
   preferred_normalization: counts
+  variants:
+    scgpt_finetuned:
 
 arguments:
   - name: --model_name
     type: string
     description: String giving the name of the scGPT model to use
     choices: ["scGPT_human", "scGPT_CP"]
-    default: "scGPT_human"
+    example: scGPT_human
+    info:
+      test_default: scGPT_human
   - name: --model
     type: file
     description: Path to the directory containing the scGPT model specified by model_name or a .zip/.tar.gz archive to extract. If not given the model will be downloaded.
     required: false
+  - name: --epochs
+    type: integer
+    description: Number of training epochs.
+    example: 10
+    info:
+      test_default: 2
 
 resources:
   - type: python_script
@@ -40,7 +50,6 @@ engines:
       - type: docker
         run: >-
           git clone https://github.com/bowang-lab/scGPT &&
-          pip install torch==2.2.0 torchvision==0.17.0 torchaudio==2.2.0 --index-url https://download.pytorch.org/whl/cu121 &&
           pip install gdown &&
           cd scGPT && pip install -e .
 
