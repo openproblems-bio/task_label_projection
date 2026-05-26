@@ -36,6 +36,12 @@ arguments:
     example: 10
     info:
       test_default: 2
+  - name: --batch_size
+    type: integer
+    description: Batch size for training and inference.
+    example: 32
+    info:
+      test_default: 4
 
 resources:
   - type: python_script
