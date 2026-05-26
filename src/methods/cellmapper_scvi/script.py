@@ -64,7 +64,7 @@ cmap.compute_mapping_matrix(kernel_method=par['kernel_method'])
 
 print("Predict on test data", flush=True)
 cmap.map_obs(key="label", prediction_postfix="pred")
-label_pred = cmap.query.obs["label_pred"].astype(str)
+label_pred = cmap.query.obs["labelpred"].astype(str)
 
 print("Create output data", flush=True)
 output = ad.AnnData(
