@@ -17,7 +17,7 @@ par = {
     "input_train": "resources_test/task_label_projection/cxg_immune_cell_atlas/train.h5ad",
     "input_test": "resources_test/task_label_projection/cxg_immune_cell_atlas/test.h5ad",
     "output": "output.h5ad",
-    "model_name": "v2-medium",
+    "model_name": "medium-v1.5",
     "model": None,
     "infer_matches": "direct",
 }
