@@ -1,5 +1,5 @@
 import anndata as ad
-import scarches as sca
+import scvi
 import pandas as pd
 
 # followed procedure from here:
@@ -35,14 +35,14 @@ adata = ad.concat([input_train, input_test], merge = "same")
 del input_train
 
 print("Create SCANVI model and train it on fully labelled reference dataset", flush=True)
-sca.models.SCVI.setup_anndata(
+scvi.model.SCVI.setup_anndata(
     adata, 
     batch_key="batch", 
     labels_key="label",
     layer="counts"
 )
 
-vae = sca.models.SCVI(
+vae = scvi.model.SCVI(
     adata,
     n_layers=2,
     encode_covariates=True,
@@ -52,7 +52,7 @@ vae = sca.models.SCVI(
 )
 
 print("Create the SCANVI model instance with ZINB loss", flush=True)
-scanvae = sca.models.SCANVI.from_scvi_model(vae, unlabeled_category = "Unknown")
+scanvae = scvi.model.SCANVI.from_scvi_model(vae, unlabeled_category = "Unknown")
 
 print("Train SCANVI model", flush=True)
 scanvae.train()

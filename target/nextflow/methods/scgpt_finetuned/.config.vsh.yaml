@@ -176,8 +176,9 @@ argument_groups:
   - type: "string"
     name: "--model_name"
     description: "String giving the name of the scGPT model to use"
-    info: null
-    default:
+    info:
+      test_default: "scGPT_human"
+    example:
     - "scGPT_human"
     required: false
     choices:
@@ -193,6 +194,28 @@ argument_groups:
     info: null
     must_exist: true
     create_parent: true
+    required: false
+    direction: "input"
+    multiple: false
+    multiple_sep: ";"
+  - type: "integer"
+    name: "--epochs"
+    description: "Number of training epochs."
+    info:
+      test_default: 2
+    example:
+    - 10
+    required: false
+    direction: "input"
+    multiple: false
+    multiple_sep: ";"
+  - type: "integer"
+    name: "--batch_size"
+    description: "Batch size for training and inference."
+    info:
+      test_default: 4
+    example:
+    - 32
     required: false
     direction: "input"
     multiple: false
@@ -216,6 +239,12 @@ test_resources:
 - type: "python_script"
   path: "check_config.py"
   is_executable: true
+- type: "python_script"
+  path: "run_and_check_output.py"
+  is_executable: true
+- type: "file"
+  path: "resources_test/task_label_projection/cxg_immune_cell_atlas"
+  dest: "resources_test/task_label_projection/cxg_immune_cell_atlas"
 info:
   preferred_normalization: "counts"
   type: "method"
@@ -282,12 +311,8 @@ engines:
   setup:
   - type: "docker"
     run:
-    - "git clone https://github.com/bowang-lab/scGPT && \\\npip install torch==2.2.0\
-      \ torchvision==0.17.0 torchaudio==2.2.0 --index-url https://download.pytorch.org/whl/cu121\
-      \ && \\\npip install \"flash-attn<1.0.5\" --no-build-isolation && \\\npip install\
-      \ ipykernel pandas scanpy numba \"numpy<1.24\" torchtext==0.17.0 scib \"scvi-tools<1.0\"\
-      \ datasets==2.14.5 transformers==4.33.2 wandb \"cell-gears<0.0.3\" torch_geometric\
-      \ pyarrow==15.0.0 gdown && \\\ncd scGPT && pip install -e . --no-deps\n"
+    - "git clone https://github.com/bowang-lab/scGPT && pip install gdown && cd scGPT\
+      \ && pip install -e ."
   entrypoint: []
   cmd: null
 build_info:
@@ -296,8 +321,8 @@ build_info:
   engine: "docker"
   output: "target/nextflow/methods/scgpt_finetuned"
   executable: "target/nextflow/methods/scgpt_finetuned/main.nf"
-  viash_version: "0.9.4"
-  git_commit: "2ce95d5631d8bd1af95b382fc5964fb215aae492"
+  viash_version: "0.9.7"
+  git_commit: "e14ce24c4af90c1f7311a52db4f9e720d97cc91e"
   git_remote: "https://github.com/openproblems-bio/task_label_projection"
 package_config:
   name: "task_label_projection"
@@ -335,7 +360,7 @@ package_config:
     name: "openproblems"
     repo: "openproblems-bio/openproblems"
     tag: "build/main"
-  viash_version: "0.9.4"
+  viash_version: "0.9.7"
   source: "src"
   target: "target"
   config_mods:
