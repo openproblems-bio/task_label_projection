@@ -38,7 +38,6 @@ engines:
     setup:
       - type: python
         packages: 
-          - scarches
           - scvi-tools>=1.1.0
       - type: docker
         run: |
