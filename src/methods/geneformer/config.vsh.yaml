@@ -54,11 +54,20 @@ engines:
   - type: docker
     image: openproblems/base_pytorch_nvidia:1
     setup:
+      - type: apt
+        packages: [git-lfs]
+      - type: docker
+        run: pip uninstall -y apex || true
       - type: python
         pip:
           - pyarrow<15.0.0a0,>=14.0.1
           - huggingface_hub
-          - git+https://huggingface.co/ctheodoris/Geneformer.git
+          - transformers==4.46
+      - type: docker
+        run: >-
+          GIT_LFS_SKIP_SMUDGE=1 git clone --depth=1 https://huggingface.co/ctheodoris/Geneformer /tmp/Geneformer &&
+          pip install /tmp/Geneformer &&
+          rm -rf /tmp/Geneformer
 
 runners:
   - type: executable
