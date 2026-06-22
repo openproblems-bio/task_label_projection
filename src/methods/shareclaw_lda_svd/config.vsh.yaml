@@ -1,0 +1,39 @@
+__merge__: /src/api/comp_method.yaml
+name: "shareclaw_lda_svd"
+label: ShareClaw LDA SVD
+summary: "Standardize PCA coordinates and fit a linear discriminant analysis classifier with the SVD solver."
+description: |
+  ShareClaw LDA SVD applies a StandardScaler to the PCA embedding and then fits
+  a LinearDiscriminantAnalysis classifier with the SVD solver. In our ShareClaw
+  search loop, this was the strongest macro-F1 performer on the official small
+  task resources while also materially improving the local Zebrafish baseline.
+references:
+  bibtex: |
+    @article{fisher1936use,
+      title = {The use of multiple measurements in taxonomic problems},
+      author = {Fisher, Ronald Aylmer},
+      journal = {Annals of Eugenics},
+      volume = {7},
+      number = {2},
+      pages = {179--188},
+      year = {1936}
+    }
+links:
+  repository: https://github.com/anubhav1004/shareclaw
+  documentation: https://scikit-learn.org/stable/modules/generated/sklearn.discriminant_analysis.LinearDiscriminantAnalysis.html
+info:
+  preferred_normalization: log_cp10k
+resources:
+  - type: python_script
+    path: script.py
+engines:
+  - type: docker
+    image: openproblems/base_python:1
+    setup:
+      - type: python
+        packages: scikit-learn
+runners:
+  - type: executable
+  - type: nextflow
+    directives:
+      label: [midtime, midmem, midcpu]
