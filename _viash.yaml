@@ -1,7 +1,7 @@
 viash_version: 0.9.7
 name: task_label_projection
 organization: openproblems-bio
-version: 2.1.0
+version: 2.1.0-rc1
 license: MIT
 keywords: ["single-cell", "label projection", "cell type annotation"]
 links:

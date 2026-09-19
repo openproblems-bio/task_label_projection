@@ -1,6 +1,6 @@
 name: "process_datasets"
 namespace: "workflows"
-version: "2.1.0"
+version: "2.1.0-rc1"
 argument_groups:
 - name: "Arguments"
   arguments:
@@ -394,7 +394,7 @@ build_info:
   - "target/nextflow/data_processors/process_dataset"
 package_config:
   name: "task_label_projection"
-  version: "2.1.0"
+  version: "2.1.0-rc1"
   label: "Label projection"
   summary: "Automated cell type annotation from rich, labeled reference data"
   description: "A major challenge for integrating single cell datasets is creating\
