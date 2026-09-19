@@ -1,0 +1,24 @@
+info:
+  type: process_dataset
+  type_info:
+    label: Data processor
+    summary: A label projection dataset processor.
+    description: |
+      A component for processing a Common Dataset into a task-specific dataset.
+arguments:
+  - name: "--input"
+    __merge__: file_common_dataset.yaml
+    direction: input
+    required: true
+  - name: "--output_train"
+    __merge__: file_train.yaml
+    direction: output
+    required: true
+  - name: "--output_test"
+    __merge__: file_test.yaml
+    direction: output
+    required: true
+  - name: "--output_solution"
+    __merge__: file_solution.yaml
+    direction: output
+    required: true

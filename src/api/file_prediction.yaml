@@ -1,0 +1,25 @@
+type: file
+example: "resources_test/task_label_projection/cxg_immune_cell_atlas/prediction.h5ad"
+label: "Prediction"
+summary: "The prediction file"
+info:
+  format:
+    type: h5ad
+    obs:
+      - type: string
+        name: label_pred
+        description: Predicted labels for the test cells.
+        required: true
+    uns:
+      - type: string
+        name: dataset_id
+        description: "A unique identifier for the dataset"
+        required: true
+      - type: string
+        name: normalization_id
+        description: "Which normalization was used"
+        required: true
+      - type: string
+        name: method_id
+        description: "A unique identifier for the method"
+        required: true

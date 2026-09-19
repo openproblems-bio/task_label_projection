@@ -1,0 +1,18 @@
+__merge__: /src/api/comp_process_dataset.yaml
+
+name: process_datasets
+namespace: workflows
+
+resources:
+  - type: nextflow_script
+    path: main.nf
+    entrypoint: run_wf
+  - path: /common/nextflow_helpers/helper.nf
+
+dependencies:
+  - name: validation/check_dataset_with_schema
+    repository: openproblems
+  - name: data_processors/process_dataset
+
+runners:
+  - type: nextflow

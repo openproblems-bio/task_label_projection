@@ -1,0 +1,44 @@
+__merge__: /src/api/comp_method.yaml
+name: "logistic_regression"
+label: Logistic Regression
+summary: "Logistic Regression with 100-dimensional PCA coordinates estimates parameters for multivariate classification by minimizing cross entropy loss over cell type classes."
+description: |
+  Logistic Regression estimates parameters of a logistic function for
+  multivariate classification tasks. Here, we use 100-dimensional whitened PCA
+  coordinates as independent variables, and the model minimises the cross
+  entropy loss over all cell type classes.
+references:
+  bibtex: |
+    @book{hosmer2013applied,
+      title = {Applied logistic regression},
+      author = {Hosmer Jr, D.W. and Lemeshow, S. and Sturdivant, R.X.},
+      year = {2013},
+      publisher = {John Wiley \& Sons},
+      volume = {398}
+    }
+links:
+  repository: https://github.com/scikit-learn/scikit-learn
+  documentation: https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LogisticRegression.html
+info:
+  v1:
+    path: openproblems/tasks/label_projection/methods/logistic_regression.py
+    commit: b3456fd73c04c28516f6df34c57e6e3e8b0dab32
+  preferred_normalization: log_cp10k
+  variants:
+    logistic_regression_log_cp10k:
+    logistic_regression_scran:
+      preferred_normalization: log_scran_pooling
+resources:
+  - type: python_script
+    path: script.py
+engines:
+  - type: docker
+    image: openproblems/base_python:1
+    setup:
+      - type: python
+        packages: scikit-learn
+runners:
+  - type: executable
+  - type: nextflow
+    directives: 
+      label: [midtime, midmem, midcpu]
