@@ -2,6 +2,10 @@
 
 ## NEW FUNCTIONALITY
 
+* Add new method: MMContext, which is a pre-trained multi-modal embedding model, that maps free text annotations and count data into a shared latent space and is trained with contrastive learning. For now included only as a zeroshot method. 
+
+## NEW FUNCTIONALITY
+
 * Add new method: CellMapper, which is a k-NN based approach to map cells across representations and can be used for label projection. Two versions are included here, one based on PCA or CCA embeddings (`linear`) and one based on an scvi embedding (`scvi`) (PR #22)
 
 * `run_benchmark`: run parameterised methods once per named paramset from `info.variants` or the new `--paramsets` file, tag scores with `paramset_name`/`paramset`, and allow `--methods_include`/`--methods_exclude` to target `<method_id>.<paramset_name>`, using the paramset helpers in `common/nextflow_helpers/helper.nf` (PR #38).

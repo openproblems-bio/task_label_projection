@@ -1,0 +1,76 @@
+__merge__: ../../api/base_method.yaml
+
+name: mmcontext_zeroshot
+label: mmcontext (zero shot)
+summary: "Zero-shot reference mapping using a pretrained mmcontext model."
+description: |
+  mmcontext is a pretrained model for single-cell context modeling. In this zero-shot
+  variant, a pretrained mmcontext SentenceTransformer model is used to embed cells and
+  assign cell-type labels in a zero-shot fashion, given a set of label names from the
+  test data. The training data is not used in this method.
+
+references:
+  doi: 10.64898/2025.12.08.692934
+
+links:
+  documentation: https://github.com/mengerj/mmcontext/blob/main/README.md
+  repository: https://github.com/mengerj/mmcontext
+
+info:
+  preferred_normalization: counts
+
+arguments:
+  - name: --model_id
+    type: string
+    description: >
+      Hugging Face model ID for the pretrained mmcontext SentenceTransformer model.
+      If not provided, a default model ID will be used.
+    required: false
+  - name: --batch_size
+    type: integer
+    default: 64
+    description: Batch size used for mmcontext inference.
+  - name: --cache_dir
+    type: string
+    description: >
+      Directory used by mmcontext and adata_hf_datasets to cache intermediate
+      files and model artifacts.
+    required: true
+  - name: --initial_embedding
+    type: string
+    default: gs10k
+    description: >
+      Name of the initial embedding method used by InitialEmbedder (e.g. gs10k).
+  - name: --n_top
+    type: integer
+    default: 5
+    description: >
+      Number of top candidate labels for mmcontext to consider when annotating
+      cells; the best scoring label will be used as the prediction.
+  - name: --force_model
+    type: boolean
+    default: false
+    description: >
+      Skip the sanity-check that `--initial_embedding` is contained within `--model_id`.
+      Only use this if you are sure the initial embedder matches the one used to train
+      the mmcontext model checkpoint.
+
+resources:
+  - type: python_script
+    path: script.py
+  - path: /src/utils/exit_codes.py
+
+engines:
+  - type: docker
+    image: openproblems/base_python:1
+    setup:
+      - type: docker
+        run: |
+          pip install "mmcontext @ git+https://github.com/mengerj/mmcontext.git@main"
+
+runners:
+  - type: executable
+  - type: nextflow
+    directives:
+      label: [midtime, midmem, midcpu]
+
