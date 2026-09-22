@@ -10,7 +10,7 @@ set -e
 
 # generate a unique id
 RUN_ID="run_$(date +%Y-%m-%d_%H-%M-%S)"
-publish_dir="s3://openproblems-data/resources/task_label_projection/results/${RUN_ID}"
+publish_dir="/vol/scratch/results/task_label_projection/${RUN_ID}"
 
 # write the parameters to file
 cat > /tmp/params.yaml << HERE
@@ -25,8 +25,8 @@ tw launch https://github.com/openproblems-bio/task_label_projection.git \
   --pull-latest \
   --main-script target/nextflow/workflows/run_benchmark/main.nf \
   --workspace 53907369739130 \
-  --compute-env 7gRyww9YNGb0c6BUBtLhDP \
+  --compute-env denbi_bibigrid_cpu \
   --params-file /tmp/params.yaml \
   --entry-name auto \
-  --config common/nextflow_helpers/labels_tw.config \
-  --labels task_label_projection,full
+  --config common/nextflow_helpers/labels_denbi.config \
+  --labels task_label_projection,full,denbi
