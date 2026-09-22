@@ -21,10 +21,6 @@ info:
     path: openproblems/tasks/label_projection/methods/knn_classifier.py
     commit: b3456fd73c04c28516f6df34c57e6e3e8b0dab32
   preferred_normalization: log_cp10k
-  variants:
-    knn_classifier_log_cp10k:
-    knn_classifier_scran:
-      preferred_normalization: log_scran_pooling
 resources:
   - type: python_script
     path: script.py
