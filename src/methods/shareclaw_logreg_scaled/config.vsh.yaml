@@ -1,0 +1,37 @@
+__merge__: /src/api/comp_method.yaml
+name: "shareclaw_logreg_scaled"
+label: ShareClaw Logistic Regression Scaled
+summary: "Standardize PCA coordinates before fitting a higher-iteration logistic regression classifier for label projection."
+description: |
+  ShareClaw Logistic Regression Scaled applies a StandardScaler to the PCA
+  embedding provided in the task inputs before fitting a multinomial logistic
+  regression classifier. The goal is to preserve the simplicity of a linear
+  baseline while using a more stable optimization setup for the task.
+references:
+  bibtex: |
+    @book{hosmer2013applied,
+      title = {Applied logistic regression},
+      author = {Hosmer Jr, D.W. and Lemeshow, S. and Sturdivant, R.X.},
+      year = {2013},
+      publisher = {John Wiley \& Sons},
+      volume = {398}
+    }
+links:
+  repository: https://github.com/anubhav1004/shareclaw
+  documentation: https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LogisticRegression.html
+info:
+  preferred_normalization: log_cp10k
+resources:
+  - type: python_script
+    path: script.py
+engines:
+  - type: docker
+    image: openproblems/base_python:1
+    setup:
+      - type: python
+        packages: scikit-learn
+runners:
+  - type: executable
+  - type: nextflow
+    directives:
+      label: [midtime, midmem, midcpu]

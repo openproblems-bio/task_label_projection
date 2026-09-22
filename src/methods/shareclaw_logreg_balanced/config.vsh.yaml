@@ -1,0 +1,37 @@
+__merge__: /src/api/comp_method.yaml
+name: "shareclaw_logreg_balanced"
+label: ShareClaw Logistic Regression Balanced
+summary: "Standardize PCA coordinates and fit a class-balanced logistic regression classifier for macro-F1-oriented label projection."
+description: |
+  ShareClaw Logistic Regression Balanced applies a StandardScaler to the PCA
+  embedding and fits a logistic regression classifier with balanced class
+  weights. The goal is to preserve a simple, reproducible linear baseline while
+  improving performance on rarer classes that matter for macro F1.
+references:
+  bibtex: |
+    @book{hosmer2013applied,
+      title = {Applied logistic regression},
+      author = {Hosmer Jr, D.W. and Lemeshow, S. and Sturdivant, R.X.},
+      year = {2013},
+      publisher = {John Wiley \& Sons},
+      volume = {398}
+    }
+links:
+  repository: https://github.com/anubhav1004/shareclaw
+  documentation: https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LogisticRegression.html
+info:
+  preferred_normalization: log_cp10k
+resources:
+  - type: python_script
+    path: script.py
+engines:
+  - type: docker
+    image: openproblems/base_python:1
+    setup:
+      - type: python
+        packages: scikit-learn
+runners:
+  - type: executable
+  - type: nextflow
+    directives:
+      label: [midtime, midmem, midcpu]
