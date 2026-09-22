@@ -455,9 +455,9 @@ RUN pip install --upgrade pip && \
 
 RUN GIT_LFS_SKIP_SMUDGE=1 git clone --depth=1 https://huggingface.co/ctheodoris/Geneformer /tmp/Geneformer && pip install /tmp/Geneformer && rm -rf /tmp/Geneformer
 LABEL org.opencontainers.image.description="Companion container for running component methods geneformer"
-LABEL org.opencontainers.image.created="2026-05-26T14:04:29Z"
+LABEL org.opencontainers.image.created="2026-09-22T06:48:07Z"
 LABEL org.opencontainers.image.source="https://huggingface.co/ctheodoris/Geneformer"
-LABEL org.opencontainers.image.revision="e14ce24c4af90c1f7311a52db4f9e720d97cc91e"
+LABEL org.opencontainers.image.revision="76bda27094ffd2c634e67350203c9a25f3aeacab"
 LABEL org.opencontainers.image.version="build_main"
 
 VIASHDOCKER
