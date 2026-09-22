@@ -3346,6 +3346,18 @@ meta = [
           "direction" : "input",
           "multiple" : false,
           "multiple_sep" : ";"
+        },
+        {
+          "type" : "integer",
+          "name" : "--chunk_size",
+          "description" : "Number of cells to embed at a time. scGPT's binning preprocessor densifies\nthe expression matrix of whatever it is handed, so large datasets are\nembedded in chunks of this many cells to bound memory use.\n",
+          "default" : [
+            50000
+          ],
+          "required" : false,
+          "direction" : "input",
+          "multiple" : false,
+          "multiple_sep" : ";"
         }
       ]
     }
@@ -3479,7 +3491,7 @@ meta = [
     "engine" : "docker",
     "output" : "target/nextflow/methods/scgpt_zeroshot",
     "viash_version" : "0.9.7",
-    "git_commit" : "76bda27094ffd2c634e67350203c9a25f3aeacab",
+    "git_commit" : "058a7d4f6f16e567db7746b9a135b4dad1dcf345",
     "git_remote" : "https://github.com/openproblems-bio/task_label_projection"
   },
   "package_config" : {
@@ -3634,7 +3646,8 @@ par = {
   'model_name': $( if [ ! -z ${VIASH_PAR_MODEL_NAME+x} ]; then echo "r'${VIASH_PAR_MODEL_NAME//\\'/\\'\\"\\'\\"r\\'}'"; else echo None; fi ),
   'model': $( if [ ! -z ${VIASH_PAR_MODEL+x} ]; then echo "r'${VIASH_PAR_MODEL//\\'/\\'\\"\\'\\"r\\'}'"; else echo None; fi ),
   'use_faiss': $( if [ ! -z ${VIASH_PAR_USE_FAISS+x} ]; then echo "r'${VIASH_PAR_USE_FAISS//\\'/\\'\\"\\'\\"r\\'}'.lower() == 'true'"; else echo None; fi ),
-  'n_hvg': $( if [ ! -z ${VIASH_PAR_N_HVG+x} ]; then echo "int(r'${VIASH_PAR_N_HVG//\\'/\\'\\"\\'\\"r\\'}')"; else echo None; fi )
+  'n_hvg': $( if [ ! -z ${VIASH_PAR_N_HVG+x} ]; then echo "int(r'${VIASH_PAR_N_HVG//\\'/\\'\\"\\'\\"r\\'}')"; else echo None; fi ),
+  'chunk_size': $( if [ ! -z ${VIASH_PAR_CHUNK_SIZE+x} ]; then echo "int(r'${VIASH_PAR_CHUNK_SIZE//\\'/\\'\\"\\'\\"r\\'}')"; else echo None; fi )
 }
 meta = {
   'name': $( if [ ! -z ${VIASH_META_NAME+x} ]; then echo "r'${VIASH_META_NAME//\\'/\\'\\"\\'\\"r\\'}'"; else echo None; fi ),
@@ -3674,6 +3687,20 @@ def get_similar_vectors(vector, ref, top_k=10):
   sims = l2_sim(vector, ref)
   top_k_idx = np.argsort(sims)[::-1][:top_k]
   return top_k_idx, sims[top_k_idx]
+
+def embed_in_chunks(adata, chunk_size, **kwargs):
+  """Run scgpt.tasks.embed_data on slices of \\`chunk_size\\` cells and concatenate.
+
+  scGPT's binning preprocessor densifies the full matrix, which for ~500k cells
+  x ~56k genes needs >200 GiB. Cells are binned and embedded independently, so
+  chunking is exact.
+  """
+  chunks = []
+  for start in range(0, adata.n_obs, chunk_size):
+    stop = min(start + chunk_size, adata.n_obs)
+    print(f"Embedding cells {start}-{stop} of {adata.n_obs}", flush=True)
+    chunks.append(scgpt.tasks.embed_data(adata[start:stop].copy(), **kwargs))
+  return ad.concat(chunks)
 
 print('Reading input files', flush=True)
 input_train = ad.read_h5ad(par['input_train'])
@@ -3735,9 +3762,10 @@ if par["n_hvg"]:
   idx = input_train.var["hvg_score"].to_numpy().argsort()[::-1][: par["n_hvg"]]
   input_train = input_train[:, idx].copy()
 
-ref_embed = scgpt.tasks.embed_data(
+ref_embed = embed_in_chunks(
   input_train,
-  model_dir,
+  par["chunk_size"],
+  model_dir=model_dir,
   gene_col="feature_name",
   obs_to_save="label",
   batch_size=64,
@@ -3753,9 +3781,10 @@ if par["n_hvg"]:
   idx = input_test.var["hvg_score"].to_numpy().argsort()[::-1][: par["n_hvg"]]
   input_test = input_test[:, idx].copy()
 
-test_embed = scgpt.tasks.embed_data(
+test_embed = embed_in_chunks(
   input_test,
-  model_dir,
+  par["chunk_size"],
+  model_dir=model_dir,
   gene_col="feature_name",
   batch_size=64,
   device=device,

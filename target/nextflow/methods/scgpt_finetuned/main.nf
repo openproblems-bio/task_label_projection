@@ -3330,7 +3330,7 @@ meta = [
           "info" : {
             "test_default" : 2
           },
-          "example" : [
+          "default" : [
             10
           ],
           "required" : false,
@@ -3345,7 +3345,7 @@ meta = [
           "info" : {
             "test_default" : 4
           },
-          "example" : [
+          "default" : [
             32
           ],
           "required" : false,
@@ -3435,7 +3435,7 @@ meta = [
       "id" : "nextflow",
       "directives" : {
         "label" : [
-          "midtime",
+          "hightime",
           "highmem",
           "midcpu",
           "biggpu",
@@ -3489,7 +3489,7 @@ meta = [
     "engine" : "docker",
     "output" : "target/nextflow/methods/scgpt_finetuned",
     "viash_version" : "0.9.7",
-    "git_commit" : "76bda27094ffd2c634e67350203c9a25f3aeacab",
+    "git_commit" : "058a7d4f6f16e567db7746b9a135b4dad1dcf345",
     "git_remote" : "https://github.com/openproblems-bio/task_label_projection"
   },
   "package_config" : {
@@ -4535,7 +4535,7 @@ meta["defaults"] = [
     "tag" : "build_main"
   },
   "label" : [
-    "midtime",
+    "hightime",
     "highmem",
     "midcpu",
     "biggpu",

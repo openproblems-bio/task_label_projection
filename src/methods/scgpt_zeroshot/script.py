@@ -36,6 +36,20 @@ def get_similar_vectors(vector, ref, top_k=10):
   top_k_idx = np.argsort(sims)[::-1][:top_k]
   return top_k_idx, sims[top_k_idx]
 
+def embed_in_chunks(adata, chunk_size, **kwargs):
+  """Run scgpt.tasks.embed_data on slices of `chunk_size` cells and concatenate.
+
+  scGPT's binning preprocessor densifies the full matrix, which for ~500k cells
+  x ~56k genes needs >200 GiB. Cells are binned and embedded independently, so
+  chunking is exact.
+  """
+  chunks = []
+  for start in range(0, adata.n_obs, chunk_size):
+    stop = min(start + chunk_size, adata.n_obs)
+    print(f"Embedding cells {start}-{stop} of {adata.n_obs}", flush=True)
+    chunks.append(scgpt.tasks.embed_data(adata[start:stop].copy(), **kwargs))
+  return ad.concat(chunks)
+
 print('Reading input files', flush=True)
 input_train = ad.read_h5ad(par['input_train'])
 input_test = ad.read_h5ad(par['input_test'])
@@ -96,9 +110,10 @@ if par["n_hvg"]:
   idx = input_train.var["hvg_score"].to_numpy().argsort()[::-1][: par["n_hvg"]]
   input_train = input_train[:, idx].copy()
 
-ref_embed = scgpt.tasks.embed_data(
+ref_embed = embed_in_chunks(
   input_train,
-  model_dir,
+  par["chunk_size"],
+  model_dir=model_dir,
   gene_col="feature_name",
   obs_to_save="label",
   batch_size=64,
@@ -114,9 +129,10 @@ if par["n_hvg"]:
   idx = input_test.var["hvg_score"].to_numpy().argsort()[::-1][: par["n_hvg"]]
   input_test = input_test[:, idx].copy()
 
-test_embed = scgpt.tasks.embed_data(
+test_embed = embed_in_chunks(
   input_test,
-  model_dir,
+  par["chunk_size"],
+  model_dir=model_dir,
   gene_col="feature_name",
   batch_size=64,
   device=device,

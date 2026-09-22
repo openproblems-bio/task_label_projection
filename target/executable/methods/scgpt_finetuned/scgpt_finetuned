@@ -447,9 +447,9 @@ FROM openproblems/base_pytorch_nvidia:1
 ENTRYPOINT []
 RUN git clone https://github.com/bowang-lab/scGPT && pip install gdown && cd scGPT && pip install -e .
 LABEL org.opencontainers.image.description="Companion container for running component methods scgpt_finetuned"
-LABEL org.opencontainers.image.created="2026-09-22T06:48:07Z"
+LABEL org.opencontainers.image.created="2026-09-22T15:42:32Z"
 LABEL org.opencontainers.image.source="https://github.com/bowang-lab/scGPT"
-LABEL org.opencontainers.image.revision="76bda27094ffd2c634e67350203c9a25f3aeacab"
+LABEL org.opencontainers.image.revision="058a7d4f6f16e567db7746b9a135b4dad1dcf345"
 LABEL org.opencontainers.image.version="build_main"
 
 VIASHDOCKER
@@ -605,12 +605,12 @@ function ViashHelp {
   echo ""
   echo "    --epochs"
   echo "        type: integer"
-  echo "        example: 10"
+  echo "        default: 10"
   echo "        Number of training epochs."
   echo ""
   echo "    --batch_size"
   echo "        type: integer"
-  echo "        example: 32"
+  echo "        default: 32"
   echo "        Batch size for training and inference."
   echo ""
   echo "Viash built in Computational Requirements:"
@@ -945,6 +945,14 @@ fi
 if [ -z ${VIASH_META_TEMP_DIR+x} ]; then
   ViashError 'temp_dir' is a required argument. Use "--help" to get more information on the parameters.
   exit 1
+fi
+
+# filling in defaults
+if [ -z ${VIASH_PAR_EPOCHS+x} ]; then
+  VIASH_PAR_EPOCHS="10"
+fi
+if [ -z ${VIASH_PAR_BATCH_SIZE+x} ]; then
+  VIASH_PAR_BATCH_SIZE="32"
 fi
 
 # check whether required files exist
