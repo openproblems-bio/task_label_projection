@@ -21,10 +21,6 @@ info:
     path: openproblems/tasks/label_projection/methods/mlp.py
     commit: b3456fd73c04c28516f6df34c57e6e3e8b0dab32
   preferred_normalization: log_cp10k
-  variants:
-    mlp_log_cp10k:
-    mlp_scran:
-      preferred_normalization: log_scran_pooling
 arguments:
   - name: "--hidden_layer_sizes"
     type: "integer"

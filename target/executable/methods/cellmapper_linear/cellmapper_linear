@@ -449,9 +449,9 @@ RUN pip install --upgrade pip && \
   pip install --upgrade --no-cache-dir "cellmapper>=0.2.1"
 
 LABEL org.opencontainers.image.description="Companion container for running component methods cellmapper_linear"
-LABEL org.opencontainers.image.created="2026-09-22T15:42:31Z"
+LABEL org.opencontainers.image.created="2026-09-22T19:18:05Z"
 LABEL org.opencontainers.image.source="https://github.com/quadbio/cellmapper"
-LABEL org.opencontainers.image.revision="058a7d4f6f16e567db7746b9a135b4dad1dcf345"
+LABEL org.opencontainers.image.revision="f37b6048a071ee81280b05e4b5c582903fa6287b"
 LABEL org.opencontainers.image.version="build_main"
 
 VIASHDOCKER
@@ -597,12 +597,12 @@ function ViashHelp {
   echo "        default: fast_cca"
   echo "        choices: [ joint_pca, fast_cca ]"
   echo "        Fallback representation to use for k-NN mapping (computed if use_rep is"
-  echo "        None)."
+  echo "        not given)."
   echo ""
   echo "    --use_rep"
   echo "        type: string"
-  echo "        default: X_pca"
-  echo "        Data representation to use for k-NN mapping."
+  echo "        Data representation to use for k-NN mapping. If not given, the fallback"
+  echo "        representation is computed instead."
   echo ""
   echo "    --kernel_method"
   echo "        type: string"
@@ -952,9 +952,6 @@ fi
 # filling in defaults
 if [ -z ${VIASH_PAR_FALLBACK_REPRESENTATION+x} ]; then
   VIASH_PAR_FALLBACK_REPRESENTATION="fast_cca"
-fi
-if [ -z ${VIASH_PAR_USE_REP+x} ]; then
-  VIASH_PAR_USE_REP="X_pca"
 fi
 if [ -z ${VIASH_PAR_KERNEL_METHOD+x} ]; then
   VIASH_PAR_KERNEL_METHOD="hnoca"

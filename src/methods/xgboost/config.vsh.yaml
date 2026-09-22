@@ -17,10 +17,6 @@ info:
     path: openproblems/tasks/label_projection/methods/xgboost.py
     commit: e3be930c6d4bbd656ab1e656badb52bb50e6cdd6
   preferred_normalization: log_cp10k
-  variants:
-    xgboost_log_cp10k:
-    xgboost_scran:
-      preferred_normalization: log_scran_pooling
 resources:
   - type: python_script
     path: script.py

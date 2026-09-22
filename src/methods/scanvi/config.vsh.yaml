@@ -22,13 +22,14 @@ info:
     commit: e3be930c6d4bbd656ab1e656badb52bb50e6cdd6
   preferred_normalization: counts
   variants:
-    scanvi_all_genes:
-    scanvi_hvg:
+    all_genes:
+      num_hvg: 0
+    hvg:
       num_hvg: 2000
 arguments:
   - name: "--num_hvg"
     type: integer
-    description: "The number of HVG genes to subset to."
+    description: "The number of HVG genes to subset to. If not given or 0, all genes are used."
 resources:
   - type: python_script
     path: script.py

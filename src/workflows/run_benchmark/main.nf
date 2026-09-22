@@ -1,4 +1,4 @@
-include { checkItemAllowed } from "${meta.resources_dir}/helper.nf"
+include { paramsetsFromVariants; expandParamsets; methodMatchesParamset; checkMethodAllowed } from "${meta.resources_dir}/helper.nf"
 
 workflow auto {
   findStates(params, meta.config)
@@ -77,33 +77,46 @@ workflow run_wf {
    ***************************/
   score_ch = dataset_ch
 
+    // expand the channel so parameterised methods run once per paramset.
+    // the paramsets are read from the --paramsets file if provided, and
+    // default to the method components' info.variants.
+    | flatMap { id, state ->
+      def method_paramsets = state.paramsets
+        ? readYaml(state.paramsets)
+        : paramsetsFromVariants(methods)
+      expandParamsets(id, state, method_paramsets)
+    }
+
     // run all methods
     | runEach(
       components: methods,
 
-      // use the 'filter' argument to only run a method on the normalisation the component is asking for
+      // use the 'filter' argument to only run a method on the normalisation the
+      // component is asking for, to match paramset-tagged states to their method,
+      // and to filter by --methods_include/--methods_exclude
       filter: { id, state, comp ->
         def norm = state.dataset_uns.normalization_id
         def pref = comp.config.info.preferred_normalization
         // if the preferred normalisation is none at all,
         // we can pass whichever dataset we want
         def norm_check = (norm == "log_cp10k" && pref == "counts") || norm == pref
-        def method_check = checkItemAllowed(
+        def paramset_check = methodMatchesParamset(state, comp.config.name)
+        def method_check = checkMethodAllowed(
           comp.config.name,
+          state.paramset_name,
           state.methods_include,
-          state.methods_exclude,
-          "methods_include",
-          "methods_exclude"
+          state.methods_exclude
         )
-        method_check && norm_check
+        norm_check && paramset_check && method_check
       },
 
-      // define a new 'id' by appending the method name to the dataset id
+      // define a new 'id' by appending the method name and paramset name to the dataset id
       id: { id, state, comp ->
-        id + "." + comp.config.name
+        id + "." + comp.config.name + (state.paramset_name ? "." + state.paramset_name : "")
       },
 
-      // use 'fromState' to fetch the arguments the component requires from the overall state
+      // use 'fromState' to fetch the arguments the component requires from the overall state,
+      // along with the paramset arguments (if any)
       fromState: { id, state, comp ->
         def new_args = [
           input_train: state.input_train,
@@ -112,7 +125,7 @@ workflow run_wf {
         if (comp.config.info.type == "control_method") {
           new_args.input_solution = state.input_solution
         }
-        new_args
+        new_args + (state.paramset ?: [:])
       },
 
       // use 'toState' to publish that component's outputs to the overall state
@@ -172,13 +185,17 @@ workflow run_wf {
 
   output_ch = score_ch
 
-    // extract the scores
+    // extract the scores, tagged with the paramset used for the method
+    // (null for control methods and methods without paramsets)
     | extract_uns_metadata.run(
       key: "extract_scores",
       fromState: [input: "metric_output"],
       toState: { id, output, state ->
+        def uns = readYaml(output.output).uns
+        uns.paramset_name = state.paramset_name
+        uns.paramset = state.paramset
         state + [
-          score_uns: readYaml(output.output).uns
+          score_uns: uns
         ]
       }
     )

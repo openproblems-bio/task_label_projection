@@ -3296,7 +3296,7 @@ meta = [
         {
           "type" : "string",
           "name" : "--fallback_representation",
-          "description" : "Fallback representation to use for k-NN mapping (computed if use_rep is None).",
+          "description" : "Fallback representation to use for k-NN mapping (computed if use_rep is not given).",
           "default" : [
             "fast_cca"
           ],
@@ -3312,10 +3312,7 @@ meta = [
         {
           "type" : "string",
           "name" : "--use_rep",
-          "description" : "Data representation to use for k-NN mapping.",
-          "default" : [
-            "X_pca"
-          ],
+          "description" : "Data representation to use for k-NN mapping. If not given, the fallback representation is computed instead.",
           "required" : false,
           "direction" : "input",
           "multiple" : false,
@@ -3382,11 +3379,10 @@ meta = [
   "info" : {
     "preferred_normalization" : "log_cp10k",
     "variants" : {
-      "cellmapper-pca" : {
+      "pca" : {
         "use_rep" : "X_pca"
       },
-      "cellmapper-cca" : {
-        "use_rep" : "None",
+      "cca" : {
         "fallback_representation" : "fast_cca"
       }
     },
@@ -3486,7 +3482,7 @@ meta = [
     "engine" : "docker",
     "output" : "target/nextflow/methods/cellmapper_linear",
     "viash_version" : "0.9.7",
-    "git_commit" : "058a7d4f6f16e567db7746b9a135b4dad1dcf345",
+    "git_commit" : "f37b6048a071ee81280b05e4b5c582903fa6287b",
     "git_remote" : "https://github.com/openproblems-bio/task_label_projection"
   },
   "package_config" : {

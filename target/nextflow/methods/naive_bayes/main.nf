@@ -3325,11 +3325,6 @@ meta = [
   ],
   "info" : {
     "preferred_normalization" : "log_cp10k",
-    "variants" : {
-      "naive_bayes_scran" : {
-        "preferred_normalization" : "log_scran_pooling"
-      }
-    },
     "type" : "method",
     "type_info" : {
       "label" : "Method",
@@ -3426,7 +3421,7 @@ meta = [
     "engine" : "docker",
     "output" : "target/nextflow/methods/naive_bayes",
     "viash_version" : "0.9.7",
-    "git_commit" : "058a7d4f6f16e567db7746b9a135b4dad1dcf345",
+    "git_commit" : "f37b6048a071ee81280b05e4b5c582903fa6287b",
     "git_remote" : "https://github.com/openproblems-bio/task_label_projection"
   },
   "package_config" : {

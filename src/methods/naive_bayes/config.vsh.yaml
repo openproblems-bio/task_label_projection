@@ -23,10 +23,6 @@ links:
   documentation: https://scikit-learn.org/stable/modules/generated/sklearn.naive_bayes.GaussianNB.html
 info:
   preferred_normalization: log_cp10k
-  variants:
-    naive_bayes_log_cp10k:
-    naive_bayes_scran:
-      preferred_normalization: log_scran_pooling
 resources:
   - type: python_script
     path: script.py
