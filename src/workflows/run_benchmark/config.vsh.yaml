@@ -55,16 +55,36 @@ argument_groups:
       These arguments are mutually exclusive, so only `--methods_include` OR
       `--methods_exclude` can set but not both.
     arguments:
+      - name: "--paramsets"
+        type: file
+        direction: input
+        required: false
+        description: |
+          A yaml file mapping method ids to named parameter sets, e.g.:
+
+            scprint:
+              large:
+                model_name: large-v1
+              small:
+                model_name: small-v1
+
+          Each listed method is run once per parameter set, with the given arguments
+          and with `paramset_name`/`paramset` attached to its scores.
+          If not provided, the parameter sets default to the `info.variants`
+          defined in the method components' configs. A method without
+          `info.variants` is run once with its default parameter set.
       - name: "--methods_include"
         type: string
         multiple: true
         description: |
           A list of method ids to include. If specified, only these methods will be run.
+          For parameterised methods, a single paramset can be targeted as `<method_id>.<paramset_name>`, e.g. `scprint.large`.
       - name: "--methods_exclude"
         type: string
         multiple: true
         description: |
           A list of method ids to exclude. If specified, all methods except the ones listed will be run.
+          For parameterised methods, a single paramset can be excluded as `<method_id>.<paramset_name>`, e.g. `scprint.large`.
 
 resources:
   - type: nextflow_script

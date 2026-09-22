@@ -14,8 +14,6 @@ links:
   documentation: https://www.bioconductor.org/packages/release/bioc/vignettes/SingleR/inst/doc/SingleR.html
 info:
   preferred_normalization: log_cp10k
-  variants:
-    seurat:
 resources:
   - type: r_script
     path: script.R

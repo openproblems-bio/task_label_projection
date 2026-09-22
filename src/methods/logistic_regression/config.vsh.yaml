@@ -24,10 +24,6 @@ info:
     path: openproblems/tasks/label_projection/methods/logistic_regression.py
     commit: b3456fd73c04c28516f6df34c57e6e3e8b0dab32
   preferred_normalization: log_cp10k
-  variants:
-    logistic_regression_log_cp10k:
-    logistic_regression_scran:
-      preferred_normalization: log_scran_pooling
 resources:
   - type: python_script
     path: script.py

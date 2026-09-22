@@ -15,8 +15,6 @@ links:
 
 info:
   preferred_normalization: counts
-  variants:
-    scgpt_finetuned:
 
 arguments:
   - name: --model_name

@@ -4,6 +4,10 @@
 
 * Add new method: CellMapper, which is a k-NN based approach to map cells across representations and can be used for label projection. Two versions are included here, one based on PCA or CCA embeddings (`linear`) and one based on an scvi embedding (`scvi`) (PR #22)
 
+* `run_benchmark`: run parameterised methods once per named paramset from `info.variants` or the new `--paramsets` file, tag scores with `paramset_name`/`paramset`, and allow `--methods_include`/`--methods_exclude` to target `<method_id>.<paramset_name>`, using the paramset helpers in `common/nextflow_helpers/helper.nf` (PR #38).
+
+* Clean up the method `info.variants` so they work as paramsets: drop the legacy `*_scran` and empty variants (`knn`, `logistic_regression`, `mlp`, `naive_bayes`, `xgboost`, `scanvi_scarches`, `scgpt_finetuned`, `scgpt_zeroshot`, `seurat_transferdata`, `singler`), rename the remaining variants of `cellmapper_linear`, `cellmapper_scvi`, `scanvi` and `scprint` to short names, and make `--use_rep` of `cellmapper_linear` optional so its `cca` variant can fall back to CCA (PR #38).
+
 ## MAJOR CHANGES
 
 * Update the image version from :1.0.0 to :1 for `openproblems/base_*` images (PR #21)
