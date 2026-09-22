@@ -39,6 +39,13 @@ arguments:
     example: 3000
     info:
       test_default: 200
+  - name: --chunk_size
+    type: integer
+    description: |
+      Number of cells to embed at a time. scGPT's binning preprocessor densifies
+      the expression matrix of whatever it is handed, so large datasets are
+      embedded in chunks of this many cells to bound memory use.
+    default: 50000
 
 resources:
   - type: python_script

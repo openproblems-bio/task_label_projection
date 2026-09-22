@@ -65,6 +65,13 @@ arguments:
     type: integer
     description: The maximum length of the gene sequence.
     default: 2000
+  - name: --chunk_size
+    type: integer
+    description: |
+      Number of cells to embed at a time. scPRINT's data loader densifies the
+      expression matrix of whatever it is handed, so large datasets are embedded
+      in chunks of this many cells to bound memory use.
+    default: 50000
   - name: --infer_matches
     type: string
     description:
@@ -82,6 +89,11 @@ engines:
   - type: docker
     image: openproblems/base_pytorch_nvidia:1
     setup:
+      # scprint pins torch 2.2 / triton 2.2, whose ptx version table stops at CUDA 12, while the base
+      # image now ships CUDA 13 at /usr/local/cuda. Point triton at the ptxas it bundles itself.
+      - type: docker
+        env:
+          - TRITON_PTXAS_PATH=/usr/local/lib/python3.12/dist-packages/triton/third_party/cuda/bin/ptxas
       - type: python
         pip:
           - scprint==2.3.5

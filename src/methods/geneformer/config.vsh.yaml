@@ -73,4 +73,4 @@ runners:
   - type: executable
   - type: nextflow
     directives:
-      label: [hightime, highmem, midcpu, midgpu, midsharedmem]
+      label: [hightime, highmem, midcpu, biggpu, midsharedmem]
