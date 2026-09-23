@@ -13,16 +13,15 @@ links:
   repository: https://github.com/quadbio/cellmapper
 info:
   preferred_normalization: counts
-  variants: 
-    cellmapper_hnoca_hvg:
+  variants:
+    hnoca_hvg:
       kernel_method: hnoca
       num_hvg: 2000
-    cellmapper_gauss_hvg:
+    gauss_hvg:
       kernel_method: gauss
       num_hvg: 2000
-    cellmapper_gauss_all_genes:
+    gauss_all_genes:
       kernel_method: gauss
-    
 arguments:
   - name: "--kernel_method"
     type: "string"

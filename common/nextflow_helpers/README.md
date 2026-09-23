@@ -2,7 +2,10 @@
 
 ## `helper.nf`
 
-This script contains two helper functions, `findArgumentSchema` and `checkItemAllowed`, that can be used in Nextflow scripts.
+This script contains helper functions that can be used in Nextflow scripts:
+
+* `findArgumentSchema` and `checkItemAllowed`, for looking up an argument's schema and for applying include/exclude lists.
+* `paramsetsFromVariants`, `expandParamsets`, `methodMatchesParamset` and `checkMethodAllowed`, for running parameterised methods once per named parameter set ("paramset") in a `run_benchmark` workflow. The paramsets default to the `info.variants` of the method configs and can be overridden with a yaml file; each run is tagged with `paramset_name` and `paramset` as in the results_v4 schema.
 
 ## `benchmarkHelper.nf`
 

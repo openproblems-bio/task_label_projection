@@ -15,8 +15,6 @@ links:
 
 info:
   preferred_normalization: counts
-  variants:
-    scgpt_finetuned:
 
 arguments:
   - name: --model_name
@@ -33,13 +31,13 @@ arguments:
   - name: --epochs
     type: integer
     description: Number of training epochs.
-    example: 10
+    default: 10
     info:
       test_default: 2
   - name: --batch_size
     type: integer
     description: Batch size for training and inference.
-    example: 32
+    default: 32
     info:
       test_default: 4
 
@@ -64,4 +62,4 @@ runners:
     # docker_run_args: "--gpus all"
   - type: nextflow
     directives:
-      label: [midtime, highmem, midcpu, biggpu, midsharedmem]
+      label: [hightime, highmem, midcpu, biggpu, midsharedmem]

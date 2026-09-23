@@ -3,6 +3,7 @@ import sys
 
 import anndata as ad
 import numpy as np
+import pandas as pd
 import scprint
 import torch
 from huggingface_hub import hf_hub_download
@@ -28,6 +29,22 @@ sys.path.append(meta["resources_dir"])
 from exit_codes import exit_non_applicable
 
 print(f"====== scPRINT version {scprint.__version__} ======", flush=True)
+
+
+def embed_in_chunks(embedder, model, adata, chunk_size):
+    """Run the embedder on slices of `chunk_size` cells and return the concatenated obs.
+
+    scdataloader's SimpleAnnDataset densifies the full expression matrix, which
+    for ~500k cells x ~70k ontology genes needs >100 GiB. Cells are embedded
+    independently, so chunking is exact.
+    """
+    obs_chunks = []
+    for start in range(0, adata.n_obs, chunk_size):
+        stop = min(start + chunk_size, adata.n_obs)
+        print(f"Embedding cells {start}-{stop} of {adata.n_obs}", flush=True)
+        embedded, _ = embedder(model, adata[start:stop].copy(), cache=False)
+        obs_chunks.append(embedded.obs)
+    return pd.concat(obs_chunks)
 
 # Set suggested PyTorch environment variable
 os.environ["PYTORCH_CUDA_ALLOC_CONF"] = "expandable_segments:True"
@@ -151,7 +168,7 @@ embedder = scprint.tasks.Embedder(
     keep_all_cls_pred=False,
     output_expression="none",
 )
-embedded, _ = embedder(model, input_train, cache=False)
+embedded_obs = embed_in_chunks(embedder, model, input_train, par["chunk_size"])
 
 print("\n>>> Matching predictions to labels...", flush=True)
 # The labels predicted by scPRINT might be different to those in the dataset
@@ -163,7 +180,7 @@ label_values = list(labels)
 label_levels = sorted(list(labels.cat.categories))
 
 # Get levels and values for predicted labels
-predicted = embedded.obs["conv_pred_cell_type_ontology_term_id"].astype("category")
+predicted = embedded_obs["conv_pred_cell_type_ontology_term_id"].astype("category")
 predicted_values = list(predicted)
 predicted_levels = sorted(list(predicted.cat.categories))
 
@@ -244,10 +261,10 @@ embedder = scprint.tasks.Embedder(
     keep_all_cls_pred=False,
     output_expression="none",
 )
-embedded_test, _ = embedder(model, input_test, cache=False)
+embedded_test_obs = embed_in_chunks(embedder, model, input_test, par["chunk_size"])
 
 print("\n>>> Converting predictions to labels...", flush=True)
-input_test.obs["label_pred"] = embedded_test.obs[
+input_test.obs["label_pred"] = embedded_test_obs[
     "conv_pred_cell_type_ontology_term_id"
 ].values
 input_test.obs = input_test.obs.replace(dict(label_pred=matches))

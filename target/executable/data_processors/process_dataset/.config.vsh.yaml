@@ -1,6 +1,6 @@
 name: "process_dataset"
 namespace: "data_processors"
-version: "2.1.0-rc1"
+version: "2.1.0-rc3"
 argument_groups:
 - name: "Arguments"
   arguments:
@@ -438,11 +438,11 @@ build_info:
   output: "target/executable/data_processors/process_dataset"
   executable: "target/executable/data_processors/process_dataset/process_dataset"
   viash_version: "0.9.7"
-  git_commit: "e14ce24c4af90c1f7311a52db4f9e720d97cc91e"
+  git_commit: "f37b6048a071ee81280b05e4b5c582903fa6287b"
   git_remote: "https://github.com/openproblems-bio/task_label_projection"
 package_config:
   name: "task_label_projection"
-  version: "2.1.0-rc1"
+  version: "2.1.0-rc3"
   label: "Label projection"
   summary: "Automated cell type annotation from rich, labeled reference data"
   description: "A major challenge for integrating single cell datasets is creating\
