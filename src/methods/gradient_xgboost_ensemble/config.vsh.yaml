@@ -1,0 +1,40 @@
+__merge__: /src/api/comp_method.yaml
+name: gradient_xgboost_ensemble
+label: Gradient XGBoost ensemble
+summary: Majority vote of ten fixed XGBoost classifiers on highly variable genes.
+description: |
+  Train ten fixed XGBoost classifiers on normalized expression of the top
+  3,000 highly variable genes, adding AQP3 when present. Predict by majority
+  vote, breaking ties by lexicographic label order. Parameters were selected
+  during a kidney label-projection campaign with repeated test feedback;
+  this contribution requires independent evaluation on OpenProblems datasets.
+  The tie rule is from a subsequent frozen donor validation, because the
+  original campaign's tie rule could not be verified. This is an adaptation
+  rather than an exact replay of the original score.
+references:
+  doi: '10.1145/2939672.2939785'
+links:
+  repository: https://github.com/dmlc/xgboost
+  documentation: https://xgboost.readthedocs.io/en/stable/index.html
+info:
+  preferred_normalization: log_cp10k
+authors:
+  - name: Edmund Miller
+    roles: [author]
+    info:
+      github: edmundmiller
+resources:
+  - type: python_script
+    path: script.py
+  - path: recipes.json
+engines:
+  - type: docker
+    image: openproblems/base_python:1
+    setup:
+      - type: python
+        packages: [xgboost==3.4.1, scikit-learn==1.9.1, anndata==0.13.4, numpy==2.5.3, scipy==1.18.1, pandas==3.0.6]
+runners:
+  - type: executable
+  - type: nextflow
+    directives:
+      label: [midtime, highmem, midcpu]
